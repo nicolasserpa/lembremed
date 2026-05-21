@@ -837,11 +837,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Screen 1 -> Screen 2 (Cadastro -> Role Selection)
   document.getElementById('btn-flow-1').addEventListener('click', () => {
-    const name = document.getElementById('reg-name').value.trim();
-    if (!name) {
-      document.getElementById('reg-name').value = 'Maria Cleusa'; // Seed with default patient if empty
+    const nameInput = document.getElementById('reg-name');
+    const nameValue = nameInput.value.trim();
+    const errorMsg = document.getElementById('name-error-msg');
+
+    if (!nameValue) {
+      nameInput.classList.add('error-state');
+      nameInput.setAttribute('aria-invalid', 'true');
+      if (errorMsg) errorMsg.style.display = 'block';
+      nameInput.focus();
+    } else {
+      nameInput.classList.remove('error-state');
+      nameInput.removeAttribute('aria-invalid');
+      if (errorMsg) errorMsg.style.display = 'none';
+      showScreen('screen-2');
     }
-    showScreen('screen-2');
   });
 
   // Screen 2 -> Screen 3 (Role Selection -> Onboarding Intro)
@@ -875,18 +885,31 @@ document.addEventListener('DOMContentLoaded', () => {
     showScreen('screen-6');
   });
 
-  // 3. Screen 2: Role selection toggle
+  // 3. Screen 2: Role selection toggle with keyboard support and WAI-ARIA
   const roleCards = document.querySelectorAll('.role-card');
   roleCards.forEach(card => {
-    card.addEventListener('click', () => {
-      roleCards.forEach(c => c.classList.remove('selected'));
+    const selectCard = () => {
+      roleCards.forEach(c => {
+        c.classList.remove('selected');
+        c.setAttribute('aria-checked', 'false');
+      });
       card.classList.add('selected');
+      card.setAttribute('aria-checked', 'true');
       
       const selectedRole = card.getAttribute('data-role');
       if (selectedRole === 'cuidador') {
         document.getElementById('btn-flow-3').setAttribute('data-next-flow', 'caregiver');
       } else {
         document.getElementById('btn-flow-3').removeAttribute('data-next-flow');
+      }
+    };
+
+    card.addEventListener('click', selectCard);
+    
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectCard();
       }
     });
   });
@@ -1004,10 +1027,45 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  let pendingCallTarget = null;
+  const confirmCallModal = document.getElementById('confirm-call-modal');
+  const btnConfirmCallCancel = document.getElementById('btn-confirm-call-cancel');
+  const btnConfirmCallApprove = document.getElementById('btn-confirm-call-approve');
+
+  function openConfirmCallModal(target) {
+    pendingCallTarget = target;
+    if (confirmCallModal) {
+      confirmCallModal.classList.add('active');
+      if (btnConfirmCallCancel) btnConfirmCallCancel.focus();
+    }
+  }
+
+  function closeConfirmCallModal() {
+    pendingCallTarget = null;
+    if (confirmCallModal) {
+      confirmCallModal.classList.remove('active');
+    }
+  }
+
+  if (btnConfirmCallCancel) {
+    btnConfirmCallCancel.addEventListener('click', () => {
+      closeConfirmCallModal();
+    });
+  }
+
+  if (btnConfirmCallApprove) {
+    btnConfirmCallApprove.addEventListener('click', () => {
+      if (pendingCallTarget) {
+        startSimulatedCall(pendingCallTarget);
+      }
+      closeConfirmCallModal();
+    });
+  }
+
   const callContactProfile = document.getElementById('btn-profile-call-contact');
   if (callContactProfile) {
     callContactProfile.addEventListener('click', () => {
-      startSimulatedCall(activePatientId);
+      openConfirmCallModal(activePatientId);
     });
   }
 
@@ -1021,14 +1079,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnPatientEmergencyCall = document.getElementById('btn-patient-emergency-call');
   if (btnPatientEmergencyCall) {
     btnPatientEmergencyCall.addEventListener('click', () => {
-      startSimulatedCall('caregiver');
+      openConfirmCallModal('caregiver');
     });
   }
   
   const btnPatientSettingsCall = document.getElementById('btn-patient-settings-call');
   if (btnPatientSettingsCall) {
     btnPatientSettingsCall.addEventListener('click', () => {
-      startSimulatedCall('caregiver');
+      openConfirmCallModal('caregiver');
     });
   }
 

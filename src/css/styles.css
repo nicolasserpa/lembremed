@@ -8,9 +8,9 @@
   --color-bg-main: #FFFFFF;
   --color-bg-secondary: #F8FAFC;
   --color-text-dark: #1E293B;
-  --color-text-muted: #64748B;
-  --color-text-light: #94A3B8;
-  --color-border: #E2E8F0;
+  --color-text-muted: #475569;
+  --color-text-light: #3F4E60;
+  --color-border: #CBD5E1;
   --color-white: #FFFFFF;
 
   /* Alert States */
@@ -43,6 +43,18 @@
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
   --shadow-md: 0 4px 12px -2px rgba(0,0,0,0.06);
   --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.08);
+}
+
+body.high-contrast {
+  --color-primary: #0056B3;
+  --color-primary-dark: #003366;
+  --color-primary-light: #E6F0FA;
+  --color-bg-main: #FFFFFF;
+  --color-bg-secondary: #F1F5F9;
+  --color-text-dark: #000000;
+  --color-text-muted: #1A1A1A;
+  --color-text-light: #2D2D2D;
+  --color-border: #475569;
 }
 
 /* Reset and Base Styles */
@@ -1097,9 +1109,16 @@ body {
   border: 2px solid transparent;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 42px;
-  min-height: 76px;
+  min-width: 44px;
+  min-height: 80px;
   text-align: center;
+  outline: none;
+}
+
+.calendar-day:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-primary);
+  border-color: var(--color-primary-dark);
+  outline: none;
 }
 
 .calendar-day:hover {
@@ -1718,6 +1737,146 @@ body {
 
 .hidden-by-role {
   display: none !important;
+}
+
+/* Accessibility Error and Form States */
+.form-control.error-state {
+  border-color: var(--color-danger-border) !important;
+  background-color: var(--color-danger-bg) !important;
+}
+
+.form-control.error-state:focus {
+  border-color: var(--color-danger-text) !important;
+  box-shadow: 0 0 0 3px rgba(153, 27, 27, 0.15) !important;
+}
+
+.error-text {
+  display: block;
+  color: var(--color-danger-text);
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 4px;
+  text-align: left;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Premium Confirmation Modal for Emergency Calls */
+.custom-confirm-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(15, 23, 42, 0.6); /* backdrop blur background */
+  backdrop-filter: blur(4px);
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  padding: 24px;
+}
+
+.custom-confirm-modal.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.confirm-modal-content {
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+  box-shadow: var(--shadow-lg), 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+  transform: scale(0.9);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.custom-confirm-modal.active .confirm-modal-content {
+  transform: scale(1);
+}
+
+.confirm-modal-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px auto;
+}
+
+.confirm-modal-content h4 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-text-dark);
+  margin-bottom: 8px;
+}
+
+.confirm-modal-content p {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.confirm-modal-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-confirm-cancel {
+  flex: 1;
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  padding: 12px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-confirm-cancel:hover {
+  background-color: #CBD5E1;
+  color: var(--color-text-dark);
+}
+
+.btn-confirm-approve {
+  flex: 1;
+  background-color: var(--color-danger-text);
+  border: none;
+  color: var(--color-white);
+  padding: 12px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-confirm-approve:hover {
+  background-color: #7f1d1d;
 }
 
 
