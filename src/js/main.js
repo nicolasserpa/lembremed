@@ -5,9 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const appScreens = document.querySelectorAll('.app-screen');
   
   // ==========================================================================
-  // PATIENT PROFILE DATA & ROUTING STATE (SCREEN 11)
+  // APP STATE & REFERENCE DATA (MODO PITCH VS MODO REFERÊNCIA)
   // ==========================================================================
-  const patientsProfileData = {
+  
+  const referencePatientsData = {
     'cleusa': {
       avatar: 'MC',
       name: 'Maria Cleusa',
@@ -51,6 +52,74 @@ document.addEventListener('DOMContentLoaded', () => {
       ]
     }
   };
+
+  const appState = {
+    mode: 'pitch', // 'pitch' ou 'reference'
+    user: {
+      name: '',
+      role: '' // 'patient' ou 'caregiver'
+    },
+    patients: {}
+  };
+
+  // Alias dinâmico para retrocompatibilidade
+  let patientsProfileData = appState.patients;
+
+  function clearPitchData() {
+    appState.user = { name: '', role: '' };
+    appState.patients = {};
+    patientsProfileData = appState.patients;
+    
+    const nameInput = document.getElementById('reg-name');
+    const genderSelect = document.getElementById('reg-gender');
+    const phoneInput = document.getElementById('reg-phone');
+    if(nameInput) nameInput.value = '';
+    if(genderSelect) genderSelect.value = '';
+    if(phoneInput) phoneInput.value = '';
+    
+    activePatientId = null;
+    
+    if (typeof initAgendaData === 'function') {
+      initAgendaData();
+    }
+  }
+
+  function seedReferenceData() {
+    appState.user = { name: 'Apresentador (Ref)', role: 'caregiver' };
+    appState.patients = JSON.parse(JSON.stringify(referencePatientsData));
+    patientsProfileData = appState.patients;
+    activePatientId = 'cleusa';
+    
+    if (typeof initAgendaData === 'function') {
+      initAgendaData();
+    }
+  }
+
+  // Data Mode Toggle Logic
+  const dataModeTabs = document.querySelectorAll('#data-mode-switcher .role-switcher-tab');
+  if (dataModeTabs) {
+    dataModeTabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        dataModeTabs.forEach(t => t.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        const mode = e.currentTarget.getAttribute('data-mode');
+        
+        if (mode === 'pitch') {
+          appState.mode = 'pitch';
+          clearPitchData();
+          showScreen('screen-1');
+          if (typeof announceToScreenReader === 'function') announceToScreenReader('Modo Pitch ativado. O simulador foi limpo.');
+        } else if (mode === 'reference') {
+          appState.mode = 'reference';
+          seedReferenceData();
+          showScreen('screen-1');
+          if (typeof announceToScreenReader === 'function') announceToScreenReader('Modo Referência ativado. Dados carregados.');
+        }
+      });
+    });
+  }
+
+  // (Modo Pitch será inicializado ao final do script para evitar problemas de Temporal Dead Zone)
 
   let activePatientId = 'cleusa';
   let previousScreen = 'screen-9';
@@ -384,15 +453,32 @@ document.addEventListener('DOMContentLoaded', () => {
   let selectedDate = '2026-05-21';
 
   function initAgendaData() {
-    agendaData = JSON.parse(JSON.stringify(BASELINE_AGENDA_DATA));
+    if (appState.mode === 'pitch') {
+      agendaData = {
+        '2026-05-21': {
+          dateLabel: 'Hoje, 21 de Maio',
+          meds: []
+        }
+      };
+    } else {
+      agendaData = JSON.parse(JSON.stringify(BASELINE_AGENDA_DATA));
+    }
   }
 
   function renderAgenda() {
     const data = agendaData[selectedDate];
-    if (!data) return;
+    const medListContainer = document.getElementById('agenda-med-list');
+    const selectedDayLabel = document.getElementById('agenda-selected-day-label');
+    const selectedDayStatus = document.getElementById('agenda-selected-day-status');
+    
+    if (!data) {
+      if (medListContainer) {
+         medListContainer.innerHTML = '<div class="empty-state" style="text-align: center; padding: 32px 16px; color: var(--color-text-light);"><p>Nenhum dado agendado.</p></div>';
+      }
+      return;
+    }
 
     // 1. Update Selected Day label
-    const selectedDayLabel = document.getElementById('agenda-selected-day-label');
     if (selectedDayLabel) {
       selectedDayLabel.textContent = data.dateLabel;
     }
@@ -400,15 +486,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Count meds status
     const totalMeds = data.meds.length;
     const takenMeds = data.meds.filter(m => m.status === 'tomado').length;
-    const selectedDayStatus = document.getElementById('agenda-selected-day-status');
+    
     if (selectedDayStatus) {
       selectedDayStatus.textContent = `${takenMeds} de ${totalMeds} tomados`;
     }
 
     // 3. Render medication list
-    const medListContainer = document.getElementById('agenda-med-list');
     if (medListContainer) {
       medListContainer.innerHTML = '';
+      
+      if (data.meds.length === 0) {
+        medListContainer.innerHTML = `
+          <div class="empty-state" style="text-align: center; padding: 32px 16px; color: var(--color-text-light);">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; opacity: 0.5;">
+              <rect x="3" y="11" width="10" height="10" rx="5" transform="rotate(-45 3 11)"/>
+            </svg>
+            <p>Você ainda não tem medicamentos agendados para este dia.</p>
+          </div>
+        `;
+        return;
+      }
       
       data.meds.forEach((med, index) => {
         const card = document.createElement('div');
@@ -623,6 +720,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (screenId === 'screen-6') {
       renderAgenda();
     }
+    if (screenId === 'screen-7') {
+      renderCaregiverDashboard();
+    }
     if (screenId === 'screen-patient-home') {
       renderPatientHomeChecklist();
     }
@@ -687,21 +787,126 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==========================================================================
-  // DYNAMIC PATIENT RENDERING LOGIC (SCREENS 12 & 13)
+  // DYNAMIC PATIENT RENDERING LOGIC (SCREENS 7, 12 & 13)
   // ==========================================================================
+  
+  function renderCaregiverDashboard() {
+    const listContainer = document.getElementById('caregiver-patients-list');
+    const countEl = document.getElementById('caregiver-patients-count');
+    
+    if (!listContainer) return;
+    listContainer.innerHTML = '';
+    
+    const patientsEntries = Object.entries(appState.patients);
+    if (countEl) countEl.textContent = `${patientsEntries.length} paciente${patientsEntries.length !== 1 ? 's' : ''}`;
+    
+    if (patientsEntries.length === 0) {
+      listContainer.innerHTML = `
+        <div class="empty-state" style="text-align: center; padding: 32px 16px; color: var(--color-text-light);">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; opacity: 0.5;">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+          </svg>
+          <p>Você ainda não gerencia nenhum paciente.</p>
+        </div>
+      `;
+      return;
+    }
+    
+    patientsEntries.forEach(([patientId, patient]) => {
+      const isTaken = patient.statusClass === 'taken';
+      const statusText = patient.status || (isTaken ? 'Em dia' : 'Pendente');
+      
+      const card = document.createElement('div');
+      card.className = 'patient-card';
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label', `Paciente ${patient.name}, status ${statusText}`);
+      card.innerHTML = `
+        <div class="patient-avatar" style="${!isTaken ? 'background-color: #E2E8F0;' : ''}">${patient.avatar}</div>
+        <div class="patient-info">
+          <h4>${patient.name}</h4>
+          <p>${patient.age}</p>
+        </div>
+        <span class="patient-status-badge ${patient.statusClass || 'pending'}" ${!isTaken ? 'style="background-color: var(--color-danger-bg); color: var(--color-danger-text);"' : ''}>${statusText}</span>
+      `;
+      
+      card.addEventListener('click', () => {
+        previousScreen = 'screen-7';
+        renderPatientProfile(patientId);
+        showScreen('screen-11');
+      });
+      
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          previousScreen = 'screen-7';
+          renderPatientProfile(patientId);
+          showScreen('screen-11');
+        }
+      });
+      
+      listContainer.appendChild(card);
+    });
+  }
+
+  const btnAddPatientMock = document.getElementById('btn-add-patient-mock');
+  if (btnAddPatientMock) {
+    btnAddPatientMock.addEventListener('click', () => {
+      const mockId = 'patient_' + Date.now();
+      appState.patients[mockId] = {
+        avatar: 'NP',
+        name: 'Novo Paciente',
+        age: '65 anos • Recém adicionado',
+        status: 'Em Dia',
+        statusClass: 'taken',
+        adherence: 100,
+        meds: [],
+        alerts: [],
+        notes: []
+      };
+      // For pitch purposes, let's also ensure 'cleusa' exists if we want to view profile 11
+      if (!appState.patients['cleusa']) {
+          appState.patients['cleusa'] = appState.patients[mockId];
+      }
+      renderCaregiverDashboard();
+    });
+  }
   function renderPatientHomeChecklist() {
-    const patient = patientsProfileData['cleusa']; // Maria Cleusa is our patient
-    if (!patient) return;
-    
+    const greetingEl = document.getElementById('patient-home-greeting');
+    if (greetingEl) {
+      const userName = appState.user.name || 'Bem-vindo(a)';
+      // Extract first name for greeting
+      const firstName = userName.split(' ')[0];
+      greetingEl.textContent = `Olá, ${firstName}!`;
+    }
+
+    // No modo paciente, usamos o usuário logado como 'cleusa' se em modo de referência,
+    // ou se em pitch e vazio, listamos nada.
+    // Para simplificar no pitch, assumimos que se o modo paciente for selecionado e não houver paciente 'cleusa', criamos um mock se necessário ou deixamos vazio.
+    const patient = appState.patients['cleusa']; 
     const checklistContainer = document.getElementById('patient-home-checklist');
-    if (!checklistContainer) return;
+    const countText = document.getElementById('patient-home-summary-count');
     
+    if (!checklistContainer) return;
     checklistContainer.innerHTML = '';
+
+    if (!patient || !patient.meds || patient.meds.length === 0) {
+      if (countText) countText.textContent = '0 de 0';
+      checklistContainer.innerHTML = `
+        <div class="empty-state" style="text-align: center; padding: 32px 16px; color: var(--color-text-light);">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; opacity: 0.5;">
+            <rect x="3" y="11" width="10" height="10" rx="5" transform="rotate(-45 3 11)"/>
+          </svg>
+          <p>Você ainda não tem medicamentos agendados para hoje.</p>
+        </div>
+      `;
+      return;
+    }
     
     const total = patient.meds.length;
     const taken = patient.meds.filter(m => m.status === 'tomado').length;
     
-    const countText = document.getElementById('patient-home-summary-count');
     if (countText) {
       countText.textContent = `${taken} de ${total}`;
     }
@@ -840,54 +1045,104 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Screen 1 -> Screen 2 (Cadastro -> Role Selection)
-  document.getElementById('btn-flow-1').addEventListener('click', () => {
-    const nameInput = document.getElementById('reg-name');
-    const nameValue = nameInput.value.trim();
-    const errorMsg = document.getElementById('name-error-msg');
+  const btnFlow1 = document.getElementById('btn-flow-1');
+  if (btnFlow1) {
+    btnFlow1.addEventListener('click', () => {
+      const nameInput = document.getElementById('reg-name');
+      const nameValue = nameInput.value.trim();
+      const errorMsg = document.getElementById('name-error-msg');
 
-    if (!nameValue) {
-      nameInput.classList.add('error-state');
-      nameInput.setAttribute('aria-invalid', 'true');
-      if (errorMsg) errorMsg.style.display = 'block';
-      nameInput.focus();
-    } else {
-      nameInput.classList.remove('error-state');
-      nameInput.removeAttribute('aria-invalid');
-      if (errorMsg) errorMsg.style.display = 'none';
-      showScreen('screen-2');
-    }
-  });
+      if (!nameValue) {
+        nameInput.classList.add('error-state');
+        nameInput.setAttribute('aria-invalid', 'true');
+        if (errorMsg) errorMsg.style.display = 'block';
+        nameInput.focus();
+      } else {
+        nameInput.classList.remove('error-state');
+        nameInput.removeAttribute('aria-invalid');
+        if (errorMsg) errorMsg.style.display = 'none';
+        
+        // Salva no estado
+        appState.user.name = nameValue;
+        
+        showScreen('screen-2');
+      }
+    });
+  }
 
   // Screen 2 -> Screen 3 (Role Selection -> Onboarding Intro)
-  document.getElementById('btn-flow-2').addEventListener('click', () => {
-    const selectedCard = document.querySelector('.role-card.selected');
-    if (selectedCard) {
-      const role = selectedCard.getAttribute('data-role') === 'cuidador' ? 'caregiver' : 'patient';
-      setSidebarSwitcherRole(role, true); // Sync sidebar role selector, but prevent redirecting yet
-    }
-    showScreen('screen-3');
-  });
+  const btnFlow2 = document.getElementById('btn-flow-2');
+  if (btnFlow2) {
+    btnFlow2.addEventListener('click', () => {
+      const selectedCard = document.querySelector('.role-card.selected');
+      if (selectedCard) {
+        const role = selectedCard.getAttribute('data-role') === 'cuidador' ? 'caregiver' : 'patient';
+        
+        // Salva no estado
+        appState.user.role = role;
+        
+        setSidebarSwitcherRole(role, true); // Sync sidebar role selector, but prevent redirecting yet
+      }
+      showScreen('screen-3');
+    });
+  }
 
   // Screen 3 -> Home View (Onboarding Intro -> Screen 12 Patient OR Screen 7 Caregiver)
-  document.getElementById('btn-flow-3').addEventListener('click', () => {
-    const selectedCard = document.querySelector('.role-card.selected');
-    const isCaregiver = selectedCard && selectedCard.getAttribute('data-role') === 'cuidador';
-    if (isCaregiver) {
-      showScreen('screen-7');
-    } else {
-      showScreen('screen-patient-home');
-    }
-  });
+  const btnFlow3 = document.getElementById('btn-flow-3');
+  if (btnFlow3) {
+    btnFlow3.addEventListener('click', () => {
+      const selectedCard = document.querySelector('.role-card.selected');
+      const isCaregiver = selectedCard && selectedCard.getAttribute('data-role') === 'cuidador';
+      if (isCaregiver) {
+        showScreen('screen-7');
+      } else {
+        showScreen('screen-patient-home');
+      }
+    });
+  }
 
   // Screen 4 click search-med card -> Screen 5 (Add Med -> Search Med)
-  document.getElementById('btn-card-search-med').addEventListener('click', () => {
-    showScreen('screen-5');
-  });
+  const btnCardSearchMed = document.getElementById('btn-card-search-med');
+  if (btnCardSearchMed) {
+    btnCardSearchMed.addEventListener('click', () => {
+      showScreen('screen-5');
+    });
+  }
 
   // Screen 5 -> Screen 6 (Search Med -> Compliance Agenda)
-  document.getElementById('btn-flow-5').addEventListener('click', () => {
-    showScreen('screen-6');
-  });
+  const btnFlow5 = document.getElementById('btn-flow-5');
+  if (btnFlow5) {
+    btnFlow5.addEventListener('click', () => {
+      const selectedMedItem = document.querySelector('#screen-5 .dropdown-item.selected');
+      if (selectedMedItem) {
+        const medName = selectedMedItem.getAttribute('data-med') || 'Novo Medicamento';
+        const dose = selectedMedItem.querySelector('p') ? selectedMedItem.querySelector('p').textContent : 'Uso oral';
+        
+        const todayDate = '2026-05-21';
+        if (!agendaData[todayDate]) {
+          agendaData[todayDate] = { dateLabel: 'Hoje, 21 de Maio', meds: [] };
+        }
+        
+        agendaData[todayDate].meds.push({
+          name: medName,
+          dose: dose,
+          time: '12:00',
+          status: 'pendente'
+        });
+        
+        // Sincroniza com a dashboard do paciente caso exista (modo Caregiver Pitch)
+        if (appState.patients && appState.patients['cleusa']) {
+          appState.patients['cleusa'].meds.push({
+            name: medName,
+            dose: dose,
+            time: '12:00',
+            status: 'pendente'
+          });
+        }
+      }
+      showScreen('screen-6');
+    });
+  }
 
   // 3. Screen 2: Role selection toggle with keyboard support and WAI-ARIA
   const roleCards = document.querySelectorAll('.role-card');
@@ -932,18 +1187,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 5. Screen 7: Caregiver Dashboard Patient Card interactions
-  document.getElementById('btn-patient-cleusa').addEventListener('click', () => {
-    previousScreen = 'screen-7';
-    renderPatientProfile('cleusa');
-    showScreen('screen-11');
-  });
+  // 5. Screen 7: Caregiver Dashboard Patient Card interactions (Safeguards for static buttons)
+  const btnPatientCleusa = document.getElementById('btn-patient-cleusa');
+  if (btnPatientCleusa) {
+    btnPatientCleusa.addEventListener('click', () => {
+      previousScreen = 'screen-7';
+      renderPatientProfile('cleusa');
+      showScreen('screen-11');
+    });
+  }
   
-  document.getElementById('btn-patient-pedro').addEventListener('click', () => {
-    previousScreen = 'screen-7';
-    renderPatientProfile('pedro');
-    showScreen('screen-11');
-  });
+  const btnPatientPedro = document.getElementById('btn-patient-pedro');
+  if (btnPatientPedro) {
+    btnPatientPedro.addEventListener('click', () => {
+      previousScreen = 'screen-7';
+      renderPatientProfile('pedro');
+      showScreen('screen-11');
+    });
+  }
 
   // Screen 9: Interactive alerts card clicks and inline patient links
   const alertItems = document.querySelectorAll('#screen-9 .alert-item');
@@ -1333,7 +1594,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 8. Reset Simulator Function
-  document.getElementById('btn-reset-simulator').addEventListener('click', () => {
+  const btnResetSimulator = document.getElementById('btn-reset-simulator');
+  if (btnResetSimulator) {
+    btnResetSimulator.addEventListener('click', () => {
     // Reset forms
     document.getElementById('reg-name').value = '';
     document.getElementById('reg-gender').value = '';
@@ -1397,6 +1660,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Route back to Screen 1
     showScreen('screen-1');
   });
+  }
 
   // 9. Real-Time Status Bar Clock Ticker
   function updatePhoneClock() {
@@ -1421,5 +1685,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initAgendaData();
   setupCalendarClickListeners();
   renderAgenda();
+
+  // Initialização padrão no Modo Pitch (Moved here to avoid Temporal Dead Zone errors)
+  clearPitchData();
   
 });

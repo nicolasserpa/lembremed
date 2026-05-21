@@ -25,11 +25,19 @@
       </div>
 
       <div class="role-switcher-container">
-        <span class="role-switcher-title">Modo do Simulador</span>
+        <span class="role-switcher-title">Filtro de Telas</span>
         <div class="role-switcher-tabs" id="role-switcher">
           <button class="role-switcher-tab active" data-role="all">Geral</button>
           <button class="role-switcher-tab" data-role="patient">Paciente</button>
           <button class="role-switcher-tab" data-role="caregiver">Cuidador</button>
+        </div>
+      </div>
+
+      <div class="role-switcher-container" style="margin-top: 16px;">
+        <span class="role-switcher-title">Modo de Apresentação</span>
+        <div class="role-switcher-tabs" id="data-mode-switcher">
+          <button class="role-switcher-tab active" data-mode="pitch" style="flex: 1;">Pitch (Ao Vivo)</button>
+          <button class="role-switcher-tab" data-mode="reference" style="flex: 1;">Referência</button>
         </div>
       </div>
       
@@ -536,33 +544,15 @@
               <div class="screen-content" style="padding-bottom: 0;">
                 <div class="section-title-bar" style="margin-top: 8px;">
                   <h3>Meus pacientes</h3>
-                  <span style="font-size: 12px; font-weight: 700; color: var(--color-primary);">2 pacientes</span>
+                  <span id="caregiver-patients-count" style="font-size: 12px; font-weight: 700; color: var(--color-primary);">0 pacientes</span>
                 </div>
                 
-                <div class="patients-list">
-                  <!-- Patient 1: Maria Cleusa -->
-                  <div class="patient-card" id="btn-patient-cleusa">
-                    <div class="patient-avatar">MC</div>
-                    <div class="patient-info">
-                      <h4>Maria Cleusa</h4>
-                      <p>78 anos • Último remédio há 2h</p>
-                    </div>
-                    <span class="patient-status-badge taken">Em dia</span>
-                  </div>
-                  
-                  <!-- Patient 2: Pedro Francisco -->
-                  <div class="patient-card" id="btn-patient-pedro">
-                    <div class="patient-avatar" style="background-color: #E2E8F0;">PF</div>
-                    <div class="patient-info">
-                      <h4>Pedro Francisco</h4>
-                      <p>82 anos • Último remédio há 4h</p>
-                    </div>
-                    <span class="patient-status-badge pending" style="background-color: var(--color-danger-bg); color: var(--color-danger-text);">Atrasado</span>
-                  </div>
+                <div class="patients-list" id="caregiver-patients-list">
+                  <!-- Pacientes renderizados dinamicamente pelo JS -->
                 </div>
                 
-                <button class="btn-primary" style="background-color: transparent; border: 2px dashed var(--color-primary); color: var(--color-primary); box-shadow: none; padding: 12px; font-size: 14px; margin-bottom: 16px;">
-                  + Adicionar paciente
+                <button id="btn-add-patient-mock" class="btn-primary" style="background-color: transparent; border: 2px dashed var(--color-primary); color: var(--color-primary); box-shadow: none; padding: 12px; font-size: 14px; margin-bottom: 16px;">
+                  + Adicionar paciente teste
                 </button>
               </div>
               
@@ -1063,7 +1053,7 @@
               </div>
               <div class="screen-content" style="padding-bottom: 0;">
                 <div class="patient-welcome-card">
-                  <h2>Olá, Maria Cleusa!</h2>
+                  <h2 id="patient-home-greeting">Olá!</h2>
                   <p>Hoje é <strong>21 de maio</strong>. Você tem <span id="patient-home-summary-count">0 de 4</span> medicamentos tomados.</p>
                 </div>
                 
