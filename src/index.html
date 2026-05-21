@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LembreMed - Protótipo Visual Interativo</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <div class="dashboard-container">
+    
+    <!-- Sidebar Control Panel -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>
+          <!-- LembreMed Icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; color: var(--color-primary);">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+            <path d="M12 5v14M5 12h14" stroke-width="2"/>
+          </svg>
+          LembreMed
+        </h2>
+        <p>Protótipo Visual Interativo</p>
+      </div>
+
+      <div class="role-switcher-container">
+        <span class="role-switcher-title">Modo do Simulador</span>
+        <div class="role-switcher-tabs" id="role-switcher">
+          <button class="role-switcher-tab active" data-role="all">Geral</button>
+          <button class="role-switcher-tab" data-role="patient">Paciente</button>
+          <button class="role-switcher-tab" data-role="caregiver">Cuidador</button>
+        </div>
+      </div>
+      
+      <div class="screen-list" id="sidebar-screen-list">
+        <!-- SHARED SCREENS -->
+        <button class="screen-btn active" data-target="screen-1" data-role="shared">
+          <span class="screen-number">1</span>
+          1. Cadastro Inicial
+        </button>
+        <button class="screen-btn" data-target="screen-2" data-role="shared">
+          <span class="screen-number">2</span>
+          2. Tipo de Perfil
+        </button>
+        <button class="screen-btn" data-target="screen-3" data-role="shared">
+          <span class="screen-number">3</span>
+          3. Onboarding Intro
+        </button>
+
+        <!-- PATIENT FLOW -->
+        <button class="screen-btn" data-target="screen-patient-home" data-role="patient">
+          <span class="screen-number">12</span>
+          12. Paciente - Início
+        </button>
+        <button class="screen-btn" data-target="screen-6" data-role="patient">
+          <span class="screen-number">6</span>
+          6. Paciente - Agenda
+        </button>
+        <button class="screen-btn" data-target="screen-patient-meds" data-role="patient">
+          <span class="screen-number">13</span>
+          13. Paciente - Remédios
+        </button>
+        <button class="screen-btn" data-target="screen-4" data-role="patient">
+          <span class="screen-number">4</span>
+          4. Adicionar Remédio
+        </button>
+        <button class="screen-btn" data-target="screen-5" data-role="patient">
+          <span class="screen-number">5</span>
+          5. Busca de Medicamentos
+        </button>
+        <button class="screen-btn" data-target="screen-patient-alerts" data-role="patient">
+          <span class="screen-number">14</span>
+          14. Paciente - Alertas
+        </button>
+        <button class="screen-btn" data-target="screen-patient-settings" data-role="patient">
+          <span class="screen-number">15</span>
+          15. Paciente - Ajustes
+        </button>
+
+        <!-- CAREGIVER FLOW -->
+        <button class="screen-btn" data-target="screen-7" data-role="caregiver">
+          <span class="screen-number">7</span>
+          7. Painel do Cuidador
+        </button>
+        <button class="screen-btn" data-target="screen-11" data-role="caregiver">
+          <span class="screen-number">11</span>
+          11. Perfil do Paciente
+        </button>
+        <button class="screen-btn" data-target="screen-8" data-role="caregiver">
+          <span class="screen-number">8</span>
+          8. Agenda do Paciente
+        </button>
+        <button class="screen-btn" data-target="screen-9" data-role="caregiver">
+          <span class="screen-number">9</span>
+          9. Central de Alertas
+        </button>
+        <button class="screen-btn" data-target="screen-10" data-role="caregiver">
+          <span class="screen-number">10</span>
+          10. Configurações
+        </button>
+      </div>
+      
+      <div class="sidebar-footer">
+        <span>Versão Pixel-Perfect</span>
+        <button class="reset-btn" id="btn-reset-simulator">Reiniciar</button>
+      </div>
+    </aside>
+    
+    <!-- Main Simulator Workspace -->
+    <main class="simulator-workspace">
+      
+      <!-- Phone Device Frame -->
+      <div class="phone-device" id="phone-container">
+        
+        <!-- Phone Screen Inside -->
+        <div class="phone-screen">
+          
+          <!-- Virtual Phone Status Bar -->
+          <div class="status-bar">
+            <span class="status-time" id="phone-time">09:41</span>
+            <div class="status-icons">
+              <!-- Signal strength icon -->
+              <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor">
+                <rect x="0" y="8" width="3" height="3" rx="0.5"/>
+                <rect x="4" y="6" width="3" height="5" rx="0.5"/>
+                <rect x="8" y="4" width="3" height="7" rx="0.5"/>
+                <rect x="12" y="1" width="3" height="10" rx="0.5"/>
+              </svg>
+              <!-- Wifi Icon -->
+              <svg width="15" height="11" viewBox="0 0 15 11" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
+                <path d="M1.5 3.5A7.5 7.5 0 0 1 13.5 3.5M3.5 5.5A5 5 0 0 1 11.5 5.5M5.5 7.5A2.5 2.5 0 0 1 9.5 7.5"/>
+                <circle cx="7.5" cy="9.5" r="0.75" fill="currentColor" stroke="none"/>
+              </svg>
+              <!-- Battery Icon -->
+              <svg width="22" height="11" viewBox="0 0 22 11" fill="currentColor">
+                <rect x="0" y="0" width="19" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+                <rect x="2" y="2" width="15" height="7" rx="1.5"/>
+                <path d="M20 3.5v4" stroke="currentColor" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+          
+          <!-- Screens Viewport -->
+          <div class="screens-viewport">
+            
+            <!-- SCREEN 1: CADASTRO -->
+            <div class="app-screen active" id="screen-1">
+              <div class="screen-header">
+                <div class="brand-logo">
+                  <!-- LembreMed custom logo cross icon -->
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="5" fill="var(--color-primary-light)" stroke="var(--color-primary)"/>
+                    <path d="M12 8v8M8 12h8" stroke="var(--color-primary)"/>
+                  </svg>
+                  lembremed
+                </div>
+              </div>
+              <div class="screen-content">
+                <h1 class="welcome-title">Bem-vindo(a)</h1>
+                <p class="welcome-subtitle">Preencha os campos para continuar</p>
+                
+                <div class="input-group">
+                  <label for="reg-name">Nome completo</label>
+                  <input type="text" id="reg-name" class="form-control" placeholder="Digite seu nome completo">
+                </div>
+                
+                <div class="input-group">
+                  <label for="reg-gender">Gênero</label>
+                  <input type="text" id="reg-gender" class="form-control" placeholder="Selecione ou digite">
+                </div>
+                
+                <div class="input-group" style="margin-bottom: 32px;">
+                  <label for="reg-phone">Celular / Telefone</label>
+                  <input type="text" id="reg-phone" class="form-control" placeholder="(00) 00000-0000">
+                </div>
+                
+                <div style="margin-top: auto;">
+                  <button class="btn-primary" id="btn-flow-1">Continuar</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- SCREEN 2: SELECAO DE PERFIL -->
+            <div class="app-screen" id="screen-2">
+              <div class="screen-header">
+                <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img"></div>
+              </div>
+              <div class="screen-content">
+                <div class="role-cards-container" style="margin-top: 16px;">
+                  <!-- Patient Role -->
+                  <div class="role-card selected" id="role-patient" data-role="paciente">
+                    <div class="role-icon-wrapper">
+                      <!-- Heart Icon -->
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                      </svg>
+                    </div>
+                    <div class="role-details">
+                      <h3>Sou paciente</h3>
+                      <p>Quero agendar meus remédios</p>
+                    </div>
+                  </div>
+                  
+                  <!-- Caregiver Role -->
+                  <div class="role-card" id="role-caregiver" data-role="cuidador">
+                    <div class="role-icon-wrapper">
+                      <!-- Caregiver Profile Icon -->
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                      </svg>
+                    </div>
+                    <div class="role-details">
+                      <h3>Sou cuidador</h3>
+                      <p>Quero gerenciar a rotina de alguém</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="info-bubble">
+                  Escolha o seu perfil. Caso precise, um cuidador pode te ajudar no seu dia a dia de forma mais rápida.
+                </div>
+                
+                <div style="margin-top: auto;">
+                  <button class="btn-primary" id="btn-flow-2">Continuar</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- SCREEN 3: ONBOARDING INTRO -->
+            <div class="app-screen" id="screen-3">
+              <div class="screen-header">
+                <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img"></div>
+              </div>
+              <div class="screen-content">
+                <div class="onboarding-intro-container">
+                  <div class="heart-badge-circle">
+                    <!-- Heart with heartbeat pulse wave line inside -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" fill="var(--color-primary)" stroke="var(--color-white)" stroke-width="1.5"/>
+                      <path d="M6 9h2.5l1.5-3 2 6 1.5-4 1.5 2H18" stroke="var(--color-white)" stroke-width="2.5"/>
+                    </svg>
+                  </div>
+                  <p class="onboarding-text">
+                    Cuidar da sua rotina de remédios é cuidar da sua saúde.<br><br>
+                    Tome seus remédios na hora certa e faça a diferença no seu bem-estar!
+                  </p>
+                </div>
+                
+                <div style="margin-top: auto;">
+                  <button class="btn-primary" id="btn-flow-3">Continuar</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- SCREEN 4: ADD MEDICATION WELCOME -->
+            <div class="app-screen" id="screen-4">
+              <div class="screen-header">
+                <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img"></div>
+              </div>
+              <div class="screen-content">
+                <h1 class="welcome-title" style="font-size: 22px; margin-top: 8px; margin-bottom: 24px;">Adicione seus medicamentos</h1>
+                
+                <div class="action-card" id="btn-card-search-med">
+                  <div class="action-card-header">
+                    <!-- Search glass -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"/>
+                      <path d="m21 21-4.3-4.3"/>
+                    </svg>
+                    <h3>Pesquisar pelo nome</h3>
+                  </div>
+                  <p>Digite o nome do remédio, princípio ativo ou laboratório.</p>
+                </div>
+                
+                <div class="action-card" style="margin-bottom: 24px;">
+                  <div class="action-card-header">
+                    <!-- Barcode SVG -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 5v14M6 5v14M10 5v14M14 5v14M17 5v14M21 5v14" stroke-width="3"/>
+                    </svg>
+                    <h3>Escanear Código</h3>
+                  </div>
+                  <p>Aponte a câmera para o código de barras na caixa do remédio.</p>
+                </div>
+                
+                <div class="info-bubble" style="margin-top: auto; margin-bottom: 0;">
+                  Adicione seus medicamentos para que possamos alertar na hora correta e manter o seu histórico sempre atualizado.
+                </div>
+              </div>
+            </div>
+            
+            <!-- SCREEN 5: MEDICINE SEARCH -->
+            <div class="app-screen" id="screen-5">
+              <div class="screen-header">
+                <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img"></div>
+              </div>
+              <div class="screen-content">
+                <h1 class="welcome-title" style="font-size: 20px; margin-top: 8px; margin-bottom: 16px;">Adicione seus medicamentos</h1>
+                
+                <div class="search-wrapper">
+                  <!-- Loupe -->
+                  <svg class="search-icon-fixed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.3-4.3"/>
+                  </svg>
+                  <input type="text" class="form-control search-input-mock" id="search-med-input" value="Dipirona">
+                </div>
+                
+                <div class="dropdown-results">
+                  <div class="dropdown-item selected" data-med="Dipirona 500mg">
+                    <div class="dropdown-item-icon">
+                      <!-- Pill SVG -->
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="8" y1="16" x2="16" y2="8" stroke="currentColor" stroke-width="3"/>
+                        <rect x="3" y="11" width="10" height="10" rx="5" transform="rotate(-45 3 11)"/>
+                      </svg>
+                    </div>
+                    <div class="dropdown-item-text">
+                      <h4>Dipirona 500mg</h4>
+                      <p>Comprimido - Uso oral</p>
+                    </div>
+                  </div>
+                  
+                  <div class="dropdown-item" data-med="Dipirona Gotas">
+                    <div class="dropdown-item-icon">
+                      <!-- Droplet -->
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7Z"/>
+                      </svg>
+                    </div>
+                    <div class="dropdown-item-text">
+                      <h4>Dipirona Gotas</h4>
+                      <p>Solução Gotas - Uso oral</p>
+                    </div>
+                  </div>
+                  
+                  <div class="dropdown-item" data-med="Dipirona Monoidratada">
+                    <div class="dropdown-item-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="8" y1="16" x2="16" y2="8" stroke="currentColor" stroke-width="3"/>
+                        <rect x="3" y="11" width="10" height="10" rx="5" transform="rotate(-45 3 11)"/>
+                      </svg>
+                    </div>
+                    <div class="dropdown-item-text">
+                      <h4>Dipirona Monoidratada</h4>
+                      <p>Comprimido genérico</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div style="margin-top: auto;">
+                  <button class="btn-primary" id="btn-flow-5">Continuar</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- SCREEN 6: AGENDA & HISTORICO -->
+            <div class="app-screen" id="screen-6">
+              <div class="screen-header">
+                <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img"></div>
+              </div>
+              <div class="screen-content" style="padding-bottom: 80px;">
+                <h2 class="agenda-title">AGENDA</h2>
+                
+                <!-- Secondary Compact Adherence Card -->
+                <div class="adherence-card-secondary">
+                  <div class="adherence-info">
+                    <h4>Aderência da Semana</h4>
+                    <p id="agenda-adherence-summary">5 de 7 dias completos</p>
+                  </div>
+                  <div class="adherence-progress-mini">
+                    <svg width="44" height="44" viewBox="0 0 36 36" class="circular-chart">
+                      <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#E2E8F0" stroke-width="3.5" />
+                      <path id="agenda-adherence-circle" class="circle" stroke-dasharray="71, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--color-primary)" stroke-width="3.5" stroke-linecap="round" />
+                      <text id="agenda-adherence-percentage" x="18" y="21.5" class="percentage" font-family="var(--font-sans)" font-size="10" font-weight="800" fill="var(--color-text-dark)" text-anchor="middle">71%</text>
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- 7-Day Calendar Strip -->
+                <div class="calendar-strip" id="agenda-calendar-strip">
+                  <div class="calendar-day" data-date="2026-05-15">
+                    <span class="day-name">Sex</span>
+                    <span class="day-num">15</span>
+                    <div class="day-status-icon taken" title="Completo">✓</div>
+                  </div>
+                  <div class="calendar-day" data-date="2026-05-16">
+                    <span class="day-name">Sáb</span>
+                    <span class="day-num">16</span>
+                    <div class="day-status-icon taken" title="Completo">✓</div>
+                  </div>
+                  <div class="calendar-day" data-date="2026-05-17">
+                    <span class="day-name">Dom</span>
+                    <span class="day-num">17</span>
+                    <div class="day-status-icon missed" title="Atrasado">✗</div>
+                  </div>
+                  <div class="calendar-day" data-date="2026-05-18">
+                    <span class="day-name">Seg</span>
+                    <span class="day-num">18</span>
+                    <div class="day-status-icon taken" title="Completo">✓</div>
+                  </div>
+                  <div class="calendar-day" data-date="2026-05-19">
+                    <span class="day-name">Ter</span>
+                    <span class="day-num">19</span>
+                    <div class="day-status-icon taken" title="Completo">✓</div>
+                  </div>
+                  <div class="calendar-day" data-date="2026-05-20">
+                    <span class="day-name">Qua</span>
+                    <span class="day-num">20</span>
+                    <div class="day-status-icon pending" title="Pendente">◷</div>
+                  </div>
+                  <div class="calendar-day selected" data-date="2026-05-21">
+                    <span class="day-name">Qui</span>
+                    <span class="day-num">21</span>
+                    <div class="day-status-icon pending" title="Pendente">◷</div>
+                  </div>
+                </div>
+
+                <!-- Selected Day Title Header -->
+                <div class="selected-day-title-bar">
+                  <h3 id="agenda-selected-day-label">Hoje, 21 de Maio</h3>
+                  <span id="agenda-selected-day-status">1 de 4 tomados</span>
+                </div>
+
+                <!-- Accessible Medication List -->
+                <div class="agenda-med-list" id="agenda-med-list">
+                  <!-- Javascript will populate this in real-time. This is our accessible static fallback -->
+                  <div class="agenda-med-card status-tomado" data-med-index="0">
+                    <div class="agenda-med-time">08:00</div>
+                    <div class="agenda-med-info">
+                      <h4>Losartana Potássica</h4>
+                      <p>50mg • 1 Comprimido</p>
+                    </div>
+                    <div class="agenda-status-badge tomado">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      Tomado
+                    </div>
+                  </div>
+                  
+                  <div class="agenda-med-card status-pendente" data-med-index="1">
+                    <div class="agenda-med-time">12:00</div>
+                    <div class="agenda-med-info">
+                      <h4>Dipirona Sódica</h4>
+                      <p>500mg • 1 Comprimido</p>
+                    </div>
+                    <div class="agenda-status-badge pendente">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      Pendente
+                    </div>
+                  </div>
+                  
+                  <div class="agenda-med-card status-pendente" data-med-index="2">
+                    <div class="agenda-med-time">18:00</div>
+                    <div class="agenda-med-info">
+                      <h4>Insulina NPH</h4>
+                      <p>10 UI • Injeção subcutânea</p>
+                    </div>
+                    <div class="agenda-status-badge pendente">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      Pendente
+                    </div>
+                  </div>
+                  
+                  <div class="agenda-med-card status-pendente" data-med-index="3">
+                    <div class="agenda-med-time">22:00</div>
+                    <div class="agenda-med-info">
+                      <h4>Paracetamol</h4>
+                      <p>750mg • 1 Comprimido</p>
+                    </div>
+                    <div class="agenda-status-badge pendente">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      Pendente
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Patient Bottom Navigation -->
+              <nav class="bottom-nav patient-nav">
+                <div class="nav-tab" data-nav="patient-home">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                  Início
+                </div>
+                <div class="nav-tab active" data-nav="patient-agenda">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  Agenda
+                </div>
+                <div class="nav-tab" data-nav="patient-meds">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="8" y1="16" x2="16" y2="8" stroke="currentColor" stroke-width="3"/>
+                    <rect x="3" y="11" width="10" height="10" rx="5" transform="rotate(-45 3 11)"/>
+                  </svg>
+                  Remédios
+                </div>
+                <div class="nav-tab" data-nav="patient-alerts">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                  </svg>
+                  Alertas
+                </div>
+                <div class="nav-tab" data-nav="patient-settings">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                  Ajustes
+                </div>
+              </nav>
+            </div>
+            
+            <!-- SCREEN 7: PAINEL DO CUIDADOR -->
+            <div class="app-screen" id="screen-7">
+              <div class="screen-header">
+                <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img"></div>
+              </div>
+              <div class="screen-content" style="padding-bottom: 0;">
+                <div class="section-title-bar" style="margin-top: 8px;">
+                  <h3>Meus pacientes</h3>
+                  <span style="font-size: 12px; font-weight: 700; color: var(--color-primary);">2 pacientes</span>
+                </div>
+                
+                <div class="patients-list">
+                  <!-- Patient 1: Maria Cleusa -->
+                  <div class="patient-card" id="btn-patient-cleusa">
+                    <div class="patient-avatar">MC</div>
+                    <div class="patient-info">
+                      <h4>Maria Cleusa</h4>
+                      <p>78 anos • Último remédio há 2h</p>
+                    </div>
+                    <span class="patient-status-badge taken">Em dia</span>
+                  </div>
+                  
+                  <!-- Patient 2: Pedro Francisco -->
+                  <div class="patient-card" id="btn-patient-pedro">
+                    <div class="patient-avatar" style="background-color: #E2E8F0;">PF</div>
+                    <div class="patient-info">
+                      <h4>Pedro Francisco</h4>
+                      <p>82 anos • Último remédio há 4h</p>
+                    </div>
+                    <span class="patient-status-badge pending" style="background-color: var(--color-danger-bg); color: var(--color-danger-text);">Atrasado</span>
+                  </div>
+                </div>
+                
+                <button class="btn-primary" style="background-color: transparent; border: 2px dashed var(--color-primary); color: var(--color-primary); box-shadow: none; padding: 12px; font-size: 14px; margin-bottom: 16px;">
+                  + Adicionar paciente
+                </button>
+              </div>
+              
+              <!-- Bottom Tab Navigation -->
+              <nav class="bottom-nav">
+                <div class="nav-tab active" data-nav="pacientes">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                  </svg>
+                  Pacientes
+                </div>
+                <div class="nav-tab" data-nav="agenda">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  Agenda
+                </div>
+                <div class="nav-tab" data-nav="alertas">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                  </svg>
+                  Alertas
+                </div>
+                <div class="nav-tab" data-nav="config">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                  Config
+                </div>
+              </nav>
+            </div>
+            
+            <!-- SCREEN 8: AGENDA DO PACIENTE -->
+            <div class="app-screen" id="screen-8">
+              <div class="screen-header">
+                <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img"></div>
+              </div>
+              <div class="screen-content" style="padding-bottom: 0;">
+                <div class="patient-profile-header">
+                  <div class="patient-profile-avatar">MC</div>
+                  <div class="patient-profile-details">
+                    <h4>Maria Cleusa</h4>
+                    <p>78 anos • Histórico estável</p>
+                  </div>
+                </div>
+                
+                <div class="info-bubble" style="margin-bottom: 16px; padding: 10px 14px;">
+                  Aqui estão os medicamentos e horários cadastrados para ela.
+                </div>
+                
+                <div class="section-title-bar">
+                  <h3>Medicamentos - Hoje</h3>
+                </div>
+                
+                <div class="meds-checklist" id="patient-meds-checklist">
+                  <!-- Med 1: Losartana -->
+                  <div class="med-row taken" data-med-id="losartana">
+                    <div class="med-icon">
+                      <!-- Capsule Pill -->
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <rect x="3" y="11" width="10" height="10" rx="5" transform="rotate(-45 3 11)"/>
+                        <line x1="8" y1="16" x2="16" y2="8" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                    </div>
+                    <div class="med-info">
+                      <h4>Losartana 50mg</h4>
+                      <p>1 comprimido • Uso oral</p>
+                    </div>
+                    <div class="med-time-status">
+                      <span class="med-time">08:00</span>
+                      <span class="med-status-indicator taken">Tomado</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Med 2: Insulina -->
+                  <div class="med-row" data-med-id="insulina">
+                    <div class="med-icon blue">
+                      <!-- Syringe -->
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m18 2 4 4M17 7l3-3M19 9l1.5-1.5M14 4 9.3 8.7a4.9 4.9 0 0 0 0 6.9l.4.4a4.9 4.9 0 0 0 6.9 0L20 11.3M9.3 8.7 5.7 5.1M16.3 15.7l-3.6-3.6M6 14l-4 4v4h4l4-4M13 7l-2.5 2.5"/>
+                      </svg>
+                    </div>
+                    <div class="med-info">
+                      <h4>Insulina</h4>
+                      <p>10 UI • Injeção SC</p>
+                    </div>
+                    <div class="med-time-status">
+                      <span class="med-time">13:00</span>
+                      <span class="med-status-indicator pending">Pendente</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Med 3: Dipirona -->
+                  <div class="med-row" data-med-id="dipirona">
+                    <div class="med-icon orange">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <rect x="3" y="11" width="10" height="10" rx="5" transform="rotate(-45 3 11)"/>
+                        <line x1="8" y1="16" x2="16" y2="8" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                    </div>
+                    <div class="med-info">
+                      <h4>Dipirona</h4>
+                      <p>1 comprimido • Se necessário</p>
+                    </div>
+                    <div class="med-time-status">
+                      <span class="med-time">20:00</span>
+                      <span class="med-status-indicator pending">Agendado</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Med 4: Metformina -->
+                  <div class="med-row" data-med-id="metformina">
+                    <div class="med-icon blue">
+                      <!-- Liquid Bottle -->
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 2h4M12 2v3M9 5h6M19 10v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V10c0-2 2-3 2-3h10s2 1 2 3Z"/>
+                      </svg>
+                    </div>
+                    <div class="med-info">
+                      <h4>Metformina 850mg</h4>
+                      <p>1 comprimido • Uso oral</p>
+                    </div>
+                    <div class="med-time-status">
+                      <span class="med-time">22:00</span>
+                      <span class="med-status-indicator pending">Agendado</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <button class="btn-primary" style="padding: 12px; font-size: 14px; margin-bottom: 16px;">
+                  + Adicionar medicamento
+                </button>
+              </div>
+              
+              <!-- Bottom Tab Navigation -->
+              <nav class="bottom-nav">
+                <div class="nav-tab active" data-nav="pacientes">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                  </svg>
+                  Pacientes
+                </div>
+                <div class="nav-tab" data-nav="agenda">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  Agenda
+                </div>
+                <div class="nav-tab" data-nav="alertas">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                  </svg>
+                  Alertas
+                </div>
+                <div class="nav-tab" data-nav="config">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                  Config
+                </div>
+              </nav>
+            </div>
+            
+            <!-- SCREEN 9: CENTRAL DE ALERTAS -->
+            <div class="app-screen" id="screen-9">
+              <div class="screen-header">
+                <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img"></div>
+              </div>
+              <div class="screen-content" style="padding-bottom: 0;">
+                <h1 class="welcome-title" style="font-size: 22px; margin-top: 8px; margin-bottom: 8px;">Alertas</h1>
+                
+                <div class="info-bubble" style="margin-bottom: 16px; padding: 10px 14px;">
+                  Fique atento aos alertas e notificações dos pacientes monitorados.
+                </div>
+                
+                <div class="alerts-feed">
+                  <!-- Warning (Yellow) -->
+                  <div class="alert-item warning" data-patient-id="cleusa" tabindex="0" aria-label="Alerta de Maria Cleusa: Losartana não confirmado">
+                    <div class="alert-item-content">
+                      <!-- Warning bell or triangle -->
+                      <svg class="alert-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                      </svg>
+                      <div class="alert-item-text">
+                        <strong>Atenção:</strong> <span class="clickable-patient-name" data-patient-id="cleusa">Maria Cleusa</span> não confirmou o uso do <strong>Losartana</strong> das 08:00.
+                      </div>
+                    </div>
+                    <div class="alert-item-chevron">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  <!-- Danger (Red) -->
+                  <div class="alert-item danger" data-patient-id="pedro" tabindex="0" aria-label="Alerta de Pedro Francisco: 2 medicamentos atrasados">
+                    <div class="alert-item-content">
+                      <!-- Alert octagram/stop sign -->
+                      <svg class="alert-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <octagon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                      </svg>
+                      <div class="alert-item-text">
+                        <strong>Crítico:</strong> <span class="clickable-patient-name" data-patient-id="pedro">Pedro Francisco</span> está com <strong>2 medicamentos atrasados</strong>.
+                      </div>
+                    </div>
+                    <div class="alert-item-chevron">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  <!-- Success (Green) -->
+                  <div class="alert-item success" data-patient-id="cleusa" tabindex="0" aria-label="Notificação de Maria Cleusa: consulta confirmada">
+                    <div class="alert-item-content">
+                      <!-- Checkmark -->
+                      <svg class="alert-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                      </svg>
+                      <div class="alert-item-text">
+                        <strong>Confirmado:</strong> Consulta com cardiologista para <span class="clickable-patient-name" data-patient-id="cleusa">Maria Cleusa</span> agendada com sucesso para <strong>25/05</strong>.
+                      </div>
+                    </div>
+                    <div class="alert-item-chevron">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  <!-- Info (Blue) -->
+                  <div class="alert-item info" data-patient-id="pedro" tabindex="0" aria-label="Informação de Pedro Francisco: receita vencendo em 2 dias">
+                    <div class="alert-item-content">
+                      <!-- Info circle -->
+                      <svg class="alert-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                      </svg>
+                      <div class="alert-item-text">
+                        <strong>Info:</strong> Próximo envio de receita médica para <span class="clickable-patient-name" data-patient-id="pedro">Pedro Francisco</span> vence em <strong>02 dias</strong>.
+                      </div>
+                    </div>
+                    <div class="alert-item-chevron">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Bottom Tab Navigation -->
+              <nav class="bottom-nav">
+                <div class="nav-tab" data-nav="pacientes">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                  </svg>
+                  Pacientes
+                </div>
+                <div class="nav-tab" data-nav="agenda">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  Agenda
+                </div>
+                <div class="nav-tab active" data-nav="alertas">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                  </svg>
+                  Alertas
+                </div>
+                <div class="nav-tab" data-nav="config">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                  Config
+                </div>
+              </nav>
+            </div>
+            
+            <!-- SCREEN 10: CONFIGURAÇÕES -->
+            <div class="app-screen" id="screen-10">
+              <div class="screen-header">
+                <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img"></div>
+              </div>
+              <div class="screen-content" style="padding-bottom: 0;">
+                <h1 class="welcome-title" style="font-size: 22px; margin-top: 8px; margin-bottom: 16px;">Configurações</h1>
+                
+                <div class="settings-list" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+                  <div class="setting-item" style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; background-color: var(--color-white); cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 12px; color: var(--color-text-dark); font-weight: 600; font-size: 14px;">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-primary);">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                      Minha Conta
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-text-light);"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                  
+                  <div class="setting-item" style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; background-color: var(--color-white); cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 12px; color: var(--color-text-dark); font-weight: 600; font-size: 14px;">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-primary);">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                      </svg>
+                      Notificações
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-text-light);"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+
+                  <div class="setting-item" style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; background-color: var(--color-white); cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 12px; color: var(--color-text-dark); font-weight: 600; font-size: 14px;">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-primary);">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                      </svg>
+                      Ajuda & Suporte
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-text-light);"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+                
+                <div class="info-bubble" style="margin-top: auto; margin-bottom: 16px;">
+                  Configure suas preferências de cuidador, visualize termos de uso ou altere suas notificações.
+                </div>
+              </div>
+              
+              <!-- Bottom Tab Navigation -->
+              <nav class="bottom-nav">
+                <div class="nav-tab" data-nav="pacientes">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                  </svg>
+                  Pacientes
+                </div>
+                <div class="nav-tab" data-nav="agenda">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  Agenda
+                </div>
+                <div class="nav-tab" data-nav="alertas">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                  </svg>
+                  Alertas
+                </div>
+                <div class="nav-tab active" data-nav="config">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                  Config
+                </div>
+              </nav>
+            </div>
+            
+            <!-- SCREEN 11: PERFIL DO PACIENTE (DETALHADO) -->
+            <div class="app-screen" id="screen-11">
+              <div class="screen-header">
+                <button class="btn-back" id="btn-profile-back" style="background: none; border: none; cursor: pointer; color: var(--color-text-dark); display: flex; align-items: center; padding: 4px; font-weight: 700; font-size: 14px;" aria-label="Voltar para a tela anterior">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                  Voltar
+                </button>
+                <div class="brand-logo" style="margin-right: 16px;"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img"></div>
+              </div>
+              <div class="screen-content" style="padding-bottom: 24px;">
+                
+                <!-- Patient Profile Card -->
+                <div class="patient-profile-card">
+                  <div class="patient-profile-avatar-large" id="profile-avatar">MC</div>
+                  <h2 id="profile-name" style="font-size: 20px; font-weight: 800; color: var(--color-text-dark); margin-top: 4px;">Maria Cleusa</h2>
+                  <p id="profile-age" style="font-size: 13px; color: var(--color-text-muted);">78 anos • Paciente Monitorada</p>
+                  <span class="patient-status-badge taken" id="profile-status-badge" style="margin-top: 4px; display: inline-block;">Em Dia</span>
+                </div>
+                
+                <!-- Monthly Adherence Card -->
+                <div class="adherence-card-secondary">
+                  <div class="adherence-info">
+                    <h4 style="font-size: 11px; font-weight: 800; color: var(--color-text-muted); text-transform: uppercase;">Aderência do Mês</h4>
+                    <p id="profile-adherence-label" style="font-size: 13px; font-weight: 700; color: var(--color-text-dark); margin-top: 2px;">94% das doses tomadas</p>
+                  </div>
+                  <div class="adherence-progress-mini" style="width: 44px; height: 44px;">
+                    <svg viewBox="0 0 36 36" class="circular-chart">
+                      <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#E2E8F0" stroke-width="3.5"></path>
+                      <path class="circle" id="profile-adherence-circle" stroke-dasharray="94, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--color-primary)" stroke-width="3.5"></path>
+                      <text x="18" y="20.35" class="percentage" id="profile-adherence-percentage" text-anchor="middle" style="font-size: 9px; font-weight: 800; fill: var(--color-text-dark);">94%</text>
+                    </svg>
+                  </div>
+                </div>
+                
+                <!-- Medication List Section -->
+                <h3 class="profile-group-title">Medicamentos Ativos</h3>
+                <div class="profile-meds-list" id="profile-meds-list">
+                  <!-- Dynamic Meds -->
+                </div>
+                
+                <!-- History Feed Section -->
+                <h3 class="profile-group-title">Histórico & Alertas</h3>
+                <div class="alerts-feed" id="profile-alerts-list" style="margin-bottom: 0;">
+                  <!-- Dynamic Alerts -->
+                </div>
+                
+                <!-- Notes Feed Section -->
+                <h3 class="profile-group-title">Anotações do Cuidador</h3>
+                <div class="notes-feed" id="profile-notes-feed" style="margin-bottom: 12px;">
+                  <!-- Dynamic Notes -->
+                </div>
+                
+                <!-- Add Note Form -->
+                <div class="add-note-form" style="margin-bottom: 20px;">
+                  <input type="text" id="profile-note-input" placeholder="Adicionar observação..." aria-label="Nova anotação de cuidados" style="border: 1.5px solid var(--color-border); border-radius: var(--radius-md); padding: 10px; font-size: 13px;">
+                  <button id="btn-submit-note" style="background-color: var(--color-primary); border: none; color: white; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; transition: background-color 0.2s ease;" aria-label="Salvar anotação">Enviar</button>
+                </div>
+                
+                <!-- Primary Actions -->
+                <div class="profile-actions" style="display: flex; flex-direction: column; gap: 8px;">
+                  <button class="btn-primary" id="btn-profile-view-agenda" style="padding: 14px; font-size: 14px;">
+                    Ver Agenda Diária
+                  </button>
+                  <button id="btn-profile-call-contact" style="width: 100%; border: 2px solid var(--color-primary); background: transparent; color: var(--color-primary); padding: 12px; border-radius: var(--radius-pill); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 0.2s ease;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                    Ligar para Contato
+                  </button>
+                </div>
+                
+              </div>
+              
+              <!-- Bottom Tab Navigation -->
+              <nav class="bottom-nav">
+                <div class="nav-tab active" data-nav="pacientes">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                  </svg>
+                  Pacientes
+                </div>
+                <div class="nav-tab" data-nav="agenda">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  Agenda
+                </div>
+                <div class="nav-tab" data-nav="alertas">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                  </svg>
+                  Alertas
+                </div>
+                <div class="nav-tab" data-nav="config">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                  Config
+                </div>
+              </nav>
+            </div>
+
+            <!-- SCREEN 12: PACIENTE - INÍCIO -->
+            <div class="app-screen" id="screen-patient-home">
+              <div class="screen-header">
+                <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img"></div>
+              </div>
+              <div class="screen-content" style="padding-bottom: 0;">
+                <div class="patient-welcome-card">
+                  <h2>Olá, Maria Cleusa!</h2>
+                  <p>Hoje é <strong>21 de maio</strong>. Você tem <span id="patient-home-summary-count">0 de 4</span> medicamentos tomados.</p>
+                </div>
+                
+                <div class="section-title-bar" style="margin-top: 4px;">
+                  <h3 style="font-size: 15px; font-weight: 800; color: var(--color-text-dark);">Seus Remédios de Hoje</h3>
+                </div>
+                
+                <!-- Dynamic patient meds checklist -->
+                <div class="meds-checklist" id="patient-home-checklist" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                  <!-- Dynamic checklists will be populated by JS -->
+                </div>
+                
+                <!-- Caregiver Contact Card -->
+                <div class="caregiver-contact-card" style="margin-top: auto; margin-bottom: 16px;">
+                  <div class="caregiver-contact-header">
+                    <div class="caregiver-contact-avatar">MC</div>
+                    <div class="caregiver-contact-info">
+                      <h4>Marcos (Cuidador)</h4>
+                      <p>Contato de Emergência</p>
+                    </div>
+                  </div>
+                  <button class="btn-emergency-call" id="btn-patient-emergency-call">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                    Ligar para Marcos
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Patient Bottom Navigation -->
+              <nav class="bottom-nav patient-nav">
+                <div class="nav-tab active" data-nav="patient-home">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                  Início
+                </div>
+                <div class="nav-tab" data-nav="patient-agenda">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  Agenda
+                </div>
+                <div class="nav-tab" data-nav="patient-meds">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="8" y1="16" x2="16" y2="8" stroke="currentColor" stroke-width="3"/>
+                    <rect x="3" y="11" width="10" height="10" rx="5" transform="rotate(-45 3 11)"/>
+                  </svg>
+                  Remédios
+                </div>
+                <div class="nav-tab" data-nav="patient-alerts">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                  </svg>
+                  Alertas
+                </div>
+                <div class="nav-tab" data-nav="patient-settings">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                  Ajustes
+                </div>
+              </nav>
+            </div>
+
+            <!-- SCREEN 13: PACIENTE - MEUS REMÉDIOS -->
+            <div class="app-screen" id="screen-patient-meds">
+              <div class="screen-header">
+                <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img"></div>
+              </div>
+              <div class="screen-content" style="padding-bottom: 0;">
+                <h1 class="welcome-title" style="font-size: 22px; margin-top: 8px; margin-bottom: 12px;">Meus Remédios</h1>
+                <p style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 20px;">Estes são os medicamentos ativos na sua prescrição atual.</p>
+                
+                <div class="patient-meds-list" id="patient-meds-list-container">
+                  <!-- Will be populated dynamically by JS -->
+                </div>
+                
+                <button class="btn-primary" id="btn-patient-add-med" style="margin-top: auto; margin-bottom: 24px; padding: 15px;">
+                  + Adicionar Medicamento
+                </button>
+              </div>
+              
+              <!-- Patient Bottom Navigation -->
+              <nav class="bottom-nav patient-nav">
+                <div class="nav-tab" data-nav="patient-home">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                  Início
+                </div>
+                <div class="nav-tab" data-nav="patient-agenda">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  Agenda
+                </div>
+                <div class="nav-tab active" data-nav="patient-meds">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="8" y1="16" x2="16" y2="8" stroke="currentColor" stroke-width="3"/>
+                    <rect x="3" y="11" width="10" height="10" rx="5" transform="rotate(-45 3 11)"/>
+                  </svg>
+                  Remédios
+                </div>
+                <div class="nav-tab" data-nav="patient-alerts">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                  </svg>
+                  Alertas
+                </div>
+                <div class="nav-tab" data-nav="patient-settings">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                  Ajustes
+                </div>
+              </nav>
+            </div>
+
+            <!-- SCREEN 14: PACIENTE - MEUS ALERTAS -->
+            <div class="app-screen" id="screen-patient-alerts">
+              <div class="screen-header">
+                <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img"></div>
+              </div>
+              <div class="screen-content" style="padding-bottom: 0;">
+                <h1 class="welcome-title" style="font-size: 22px; margin-top: 8px; margin-bottom: 12px;">Seus Alertas</h1>
+                <p style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 20px;">Mensagens e lembretes importantes para você.</p>
+                
+                <div class="alerts-feed" style="margin-bottom: 0;">
+                  <!-- Warning/Pending refill -->
+                  <div class="alert-item warning" style="cursor: default; transform: none; box-shadow: none;">
+                    <div class="alert-item-content">
+                      <svg class="alert-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                      </svg>
+                      <div class="alert-item-text">
+                        <strong>Receita médica:</strong> Seu envio de receitas vence em breve. Fale com seu cuidador.
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Success alert (Caregiver added note) -->
+                  <div class="alert-item success" style="cursor: default; transform: none; box-shadow: none;">
+                    <div class="alert-item-content">
+                      <svg class="alert-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                      </svg>
+                      <div class="alert-item-text">
+                        <strong>Cuidador:</strong> Marcos adicionou uma anotação sobre sua boa disposição de ontem!
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Patient Bottom Navigation -->
+              <nav class="bottom-nav patient-nav">
+                <div class="nav-tab" data-nav="patient-home">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                  Início
+                </div>
+                <div class="nav-tab" data-nav="patient-agenda">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  Agenda
+                </div>
+                <div class="nav-tab" data-nav="patient-meds">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="8" y1="16" x2="16" y2="8" stroke="currentColor" stroke-width="3"/>
+                    <rect x="3" y="11" width="10" height="10" rx="5" transform="rotate(-45 3 11)"/>
+                  </svg>
+                  Remédios
+                </div>
+                <div class="nav-tab active" data-nav="patient-alerts">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                  </svg>
+                  Alertas
+                </div>
+                <div class="nav-tab" data-nav="patient-settings">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                  Ajustes
+                </div>
+              </nav>
+            </div>
+
+            <!-- SCREEN 15: PACIENTE - AJUSTES -->
+            <div class="app-screen" id="screen-patient-settings">
+              <div class="screen-header">
+                <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img"></div>
+              </div>
+              <div class="screen-content" style="padding-bottom: 0;">
+                <h1 class="welcome-title" style="font-size: 22px; margin-top: 8px; margin-bottom: 16px;">Configurações</h1>
+                
+                <div class="settings-list" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                  <!-- High Contrast Toggle (Accessible design) -->
+                  <div class="setting-item" style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; background-color: var(--color-white); cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 12px; color: var(--color-text-dark); font-weight: 600; font-size: 14px;">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-primary);">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                      </svg>
+                      Contraste Alto
+                    </div>
+                    <div style="width: 44px; height: 24px; background-color: var(--color-border); border-radius: 12px; position: relative;">
+                      <div style="width: 20px; height: 20px; background-color: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; box-shadow: var(--shadow-sm);"></div>
+                    </div>
+                  </div>
+                  
+                  <!-- Font size selector -->
+                  <div class="setting-item" style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; background-color: var(--color-white); cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 12px; color: var(--color-text-dark); font-weight: 600; font-size: 14px;">
+                      <span style="font-size: 16px; font-weight: 800; color: var(--color-primary); width: 20px; text-align: center;">A+</span>
+                      Tamanho da Letra
+                    </div>
+                    <span style="font-size: 12px; font-weight: 700; color: var(--color-text-muted);">Médio</span>
+                  </div>
+                </div>
+                
+                <!-- Caregiver emergency contact -->
+                <div class="caregiver-contact-card" style="margin-bottom: 24px;">
+                  <div class="caregiver-contact-header">
+                    <div class="caregiver-contact-avatar">MC</div>
+                    <div class="caregiver-contact-info">
+                      <h4>Marcos (Cuidador)</h4>
+                      <p>Contato de Emergência</p>
+                    </div>
+                  </div>
+                  <button class="btn-emergency-call" id="btn-patient-settings-call">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                    Ligar de Emergência
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Patient Bottom Navigation -->
+              <nav class="bottom-nav patient-nav">
+                <div class="nav-tab" data-nav="patient-home">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                  Início
+                </div>
+                <div class="nav-tab" data-nav="patient-agenda">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  Agenda
+                </div>
+                <div class="nav-tab" data-nav="patient-meds">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="8" y1="16" x2="16" y2="8" stroke="currentColor" stroke-width="3"/>
+                    <rect x="3" y="11" width="10" height="10" rx="5" transform="rotate(-45 3 11)"/>
+                  </svg>
+                  Remédios
+                </div>
+                <div class="nav-tab" data-nav="patient-alerts">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                  </svg>
+                  Alertas
+                </div>
+                <div class="nav-tab active" data-nav="patient-settings">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                  Ajustes
+                </div>
+              </nav>
+            </div>
+
+          </div>
+
+          <!-- Floating simulated call overlay -->
+          <div class="toast-call" id="phone-toast-call">
+            <div class="toast-call-avatar" id="toast-call-avatar">MC</div>
+            <div class="toast-call-info">
+              <h4 id="toast-call-title">Chamando...</h4>
+              <p id="toast-call-subtitle">Iniciando ligação de voz</p>
+            </div>
+            <button class="toast-call-btn-hangup" id="btn-hangup-call" aria-label="Desligar ligação">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L5.67 6.69a16 16 0 0 0 5.01 6.62Z"/>
+              </svg>
+            </button>
+          </div>
+          
+          <!-- Virtual Phone Home Indicator -->
+          <div class="home-indicator-bar">
+            <div class="home-indicator"></div>
+          </div>
+          
+        </div>
+      </div>
+      
+    </main>
+    
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 35" width="100%" height="100%">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&amp;display=swap');
+      .logo-text {
+        /* Custom font stack targeting their local 'Ultima Pro' with 'Quicksand' as the geometric fallback */
+        font-family: 'Ultima Pro', 'Ultima Rounded', 'UltimaPro-Medium', 'UltimaProMedium', 'UltimaPro-Bold', 'Quicksand', 'Nunito', sans-serif;
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      }
+      .blue-part {
+        fill: #0047bb; /* Flat Royal Blue from reference */
+      }
+      .cyan-part {
+        fill: #00a2ff; /* Flat Cyan from reference */
+      }
+    </style>
+  </defs>
+  <!-- x="5" ensures the 'l' has a perfect visual margin and is never cut off -->
+  <text x="5" y="27" class="logo-text">
+    <tspan class="blue-part">lembre</tspan><tspan class="cyan-part">med</tspan>
+  </text>
+</svg>
