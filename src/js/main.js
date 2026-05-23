@@ -383,10 +383,13 @@ document.addEventListener('DOMContentLoaded', () => {
   function initAgendaData() {
     if (appState.mode === 'pitch') {
       agendaData = {
-        '2026-05-21': {
-          dateLabel: 'Hoje, 21 de Maio',
-          meds: []
-        }
+        '2026-05-15': { dateLabel: 'Sexta-feira, 15 de Maio', meds: [] },
+        '2026-05-16': { dateLabel: 'Sábado, 16 de Maio', meds: [] },
+        '2026-05-17': { dateLabel: 'Domingo, 17 de Maio', meds: [] },
+        '2026-05-18': { dateLabel: 'Segunda-feira, 18 de Maio', meds: [] },
+        '2026-05-19': { dateLabel: 'Terça-feira, 19 de Maio', meds: [] },
+        '2026-05-20': { dateLabel: 'Quarta-feira, 20 de Maio', meds: [] },
+        '2026-05-21': { dateLabel: 'Hoje, 21 de Maio', meds: [] }
       };
     } else {
       agendaData = JSON.parse(JSON.stringify(BASELINE_AGENDA_DATA));
@@ -399,9 +402,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedDayLabel = document.getElementById('agenda-selected-day-label');
     const selectedDayStatus = document.getElementById('agenda-selected-day-status');
     
+    // Always update calendar strip UI & Weekly Adherence at the start so selection class is visually updated immediately
+    updateCalendarStrip();
+    updateWeeklyAdherence();
+
     if (!data) {
+      if (selectedDayLabel) {
+        selectedDayLabel.textContent = 'Sem agendamentos';
+      }
+      if (selectedDayStatus) {
+        selectedDayStatus.textContent = '0 de 0 tomados';
+      }
       if (medListContainer) {
-         medListContainer.innerHTML = '<div class="empty-state" style="text-align: center; padding: 32px 16px; color: var(--color-text-light);"><p>Nenhum dado agendado.</p></div>';
+         medListContainer.innerHTML = `
+          <div class="empty-state" style="text-align: center; padding: 32px 16px; color: var(--color-text-light);">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; opacity: 0.5;">
+              <rect x="3" y="11" width="10" height="10" rx="5" transform="rotate(-45 3 11)"/>
+            </svg>
+            <p>Você ainda não tem medicamentos agendados para este dia.</p>
+          </div>
+         `;
       }
       return;
     }
@@ -440,6 +460,8 @@ document.addEventListener('DOMContentLoaded', () => {
         card.className = `agenda-med-card status-${med.status}`;
         card.setAttribute('data-med-index', index);
         card.setAttribute('tabindex', '0'); // Accessibility
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', `Medicamento ${med.name}, dose ${med.dose}, às ${med.time}, status ${med.status}`);
         
         let badgeHtml = '';
         if (med.status === 'tomado') {
@@ -490,12 +512,6 @@ document.addEventListener('DOMContentLoaded', () => {
         medListContainer.appendChild(card);
       });
     }
-
-    // 4. Update the calendar strip UI
-    updateCalendarStrip();
-
-    // 5. Update Weekly Adherence card
-    updateWeeklyAdherence();
   }
 
   function toggleMedStatus(date, index) {
@@ -528,8 +544,10 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (dateStr === selectedDate) {
         dayElement.classList.add('selected');
+        dayElement.setAttribute('aria-selected', 'true');
       } else {
         dayElement.classList.remove('selected');
+        dayElement.setAttribute('aria-selected', 'false');
       }
       
       const dayData = agendaData[dateStr];
@@ -617,8 +635,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const calendarDays = document.querySelectorAll('.calendar-day');
     calendarDays.forEach(dayElement => {
       dayElement.setAttribute('tabindex', '0'); // Accessibility
+      dayElement.setAttribute('role', 'button'); // Accessibility
       
-      const selectHandler = () => {
+      const dayName = dayElement.querySelector('.day-name')?.textContent || '';
+      const dayNum = dayElement.querySelector('.day-num')?.textContent || '';
+      dayElement.setAttribute('aria-label', `Selecionar ${dayName}, dia ${dayNum}`);
+      
+      const dateStr = dayElement.getAttribute('data-date');
+      dayElement.setAttribute('aria-selected', dateStr === selectedDate ? 'true' : 'false');
+      
+      const selectHandler = (e) => {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
         const dateStr = dayElement.getAttribute('data-date');
         selectedDate = dateStr;
         renderAgenda();
@@ -628,7 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dayElement.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          selectHandler();
+          selectHandler(e);
         }
       });
     });
