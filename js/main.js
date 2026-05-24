@@ -1386,7 +1386,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (searchInput && dropdownResults) {
     const showDropdown = () => {
-      dropdownResults.style.display = 'block';
       filterResults();
     };
     
@@ -1395,6 +1394,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const filterResults = () => {
       const query = searchInput.value.toLowerCase().trim();
+      if (query === '') {
+        dropdownResults.style.display = 'none';
+        return;
+      }
       let visibleCount = 0;
       
       searchDropdownItems.forEach(item => {
