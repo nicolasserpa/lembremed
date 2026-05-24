@@ -1,6 +1,3 @@
-# Local custom backups
-backup/
-
 # Operating System files
 Thumbs.db
 ehthumbs.db
@@ -21,6 +18,5 @@ docs/
 design/
 *.docx
 backup/
-
 assets/fonts/.tmp-font/
 assets/fonts/font-tools/
