@@ -16,5 +16,11 @@ Desktop.ini
 *.sln
 *.sw?
 
+# Private
 docs/
 design/
+*.docx
+backup/
+
+assets/fonts/.tmp-font/
+assets/fonts/font-tools/
