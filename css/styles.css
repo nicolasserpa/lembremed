@@ -45,7 +45,7 @@
   --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.08);
 }
 
-body.high-contrast {
+.phone-device.high-contrast {
   --color-primary: #0056B3;
   --color-primary-dark: #003366;
   --color-primary-light: #E6F0FA;

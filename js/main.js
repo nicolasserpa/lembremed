@@ -1641,7 +1641,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleHighContrast = () => {
       const pill = contrastToggle.querySelector('div[style*="position: relative"]');
       const thumb = pill.querySelector('div');
-      const isHighContrast = document.body.classList.toggle('high-contrast');
+      const phoneContainer = document.getElementById('phone-container');
+      const isHighContrast = phoneContainer ? phoneContainer.classList.toggle('high-contrast') : false;
       if (isHighContrast) {
         pill.style.backgroundColor = 'var(--color-primary)';
         thumb.style.left = '22px';
@@ -1909,8 +1910,9 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPatientHomeChecklist();
     renderPatientMedsList();
     
-    // Disable high contrast on body
-    document.body.classList.remove('high-contrast');
+    // Disable high contrast on phone container
+    const phoneContainer = document.getElementById('phone-container');
+    if (phoneContainer) phoneContainer.classList.remove('high-contrast');
     const pill = contrastToggle.querySelector('div[style*="position: relative"]');
     const thumb = pill.querySelector('div');
     if (pill && thumb) {
