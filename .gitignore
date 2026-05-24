@@ -20,3 +20,4 @@ design/
 backup/
 assets/fonts/.tmp-font/
 assets/fonts/font-tools/
+.agent/
