@@ -1984,13 +1984,17 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Reset Upgraded Screen 6 state & patient checklist
-    patientsProfileData['cleusa'].meds.forEach(med => {
-      med.status = med.name.toLowerCase().includes('losartana') ? 'tomado' : 'pendente';
-    });
-    patientsProfileData['pedro'].meds.forEach(med => {
-      med.status = med.name.toLowerCase().includes('metformina') ? 'tomado' : 'atrasado';
-    });
+    // Reset Upgraded Screen 6 state & patient checklist safely
+    if (patientsProfileData['cleusa'] && patientsProfileData['cleusa'].meds) {
+      patientsProfileData['cleusa'].meds.forEach(med => {
+        med.status = med.name.toLowerCase().includes('losartana') ? 'tomado' : 'pendente';
+      });
+    }
+    if (patientsProfileData['pedro'] && patientsProfileData['pedro'].meds) {
+      patientsProfileData['pedro'].meds.forEach(med => {
+        med.status = med.name.toLowerCase().includes('metformina') ? 'tomado' : 'atrasado';
+      });
+    }
 
     initAgendaData();
     selectedDate = '2026-05-21';
@@ -2153,45 +2157,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (patLogoutBtn) patLogoutBtn.addEventListener('click', performLogout);
 
 
-  // 3. ONBOARDING CAROUSEL
-  const btnFlow3Start = document.getElementById('btn-flow-3');
-  const slides = document.querySelectorAll('.onboarding-slide');
-  const dots = document.querySelectorAll('.onboarding-dots .dot');
-  let currentSlide = 0;
-
-  if (slides.length > 0 && btnFlow3Start) {
-    btnFlow3Start.textContent = "Próximo";
-    
-    // We need to override the existing event listener by cloning or modifying it.
-    // The easiest way is to wrap its behavior.
-    const newBtn = btnFlow3Start.cloneNode(true);
-    btnFlow3Start.parentNode.replaceChild(newBtn, btnFlow3Start);
-    
-    newBtn.addEventListener('click', () => {
-      if (currentSlide < slides.length - 1) {
-        slides[currentSlide].classList.remove('active');
-        dots[currentSlide].classList.remove('active');
-        
-        currentSlide++;
-        
-        slides[currentSlide].classList.add('active');
-        dots[currentSlide].classList.add('active');
-        
-        if (currentSlide === slides.length - 1) {
-          newBtn.textContent = "Começar";
-        }
-      } else {
-        // Now let it proceed (replicate original behavior)
-        const selectedCard = document.querySelector('.role-card.selected');
-        const isCaregiver = selectedCard && selectedCard.getAttribute('data-role') === 'cuidador';
-        if (isCaregiver) {
-          showScreen('screen-7');
-        } else {
-          showScreen('screen-patient-home');
-        }
-      }
-    });
-  }
+  // 3. ONBOARDING CAROUSEL (Handled dynamically inside initOnboardingCarousel)
 
 
   // 4. PATIENT ALERTS DYNAMIC RENDERING
@@ -2258,7 +2224,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function initOnboardingCarousel(role) {
     const carousel = document.getElementById('onboarding-carousel');
     const dotsContainer = document.getElementById('onboarding-dots');
+    const btnFlow3 = document.getElementById('btn-flow-3');
     if (!carousel || !dotsContainer) return;
+    
+    if (btnFlow3) {
+      btnFlow3.textContent = "Próximo";
+    }
     
     // Clear any previous interval
     if (onboardingInterval) {
@@ -2305,6 +2276,14 @@ document.addEventListener('DOMContentLoaded', () => {
       
       slides[currentSlide].classList.add('active');
       dots[currentSlide].classList.add('active');
+      
+      if (btnFlow3) {
+        if (currentSlide === slides.length - 1) {
+          btnFlow3.textContent = "Começar";
+        } else {
+          btnFlow3.textContent = "Próximo";
+        }
+      }
     }
     
     // Setup dot click listeners
@@ -2315,6 +2294,25 @@ document.addEventListener('DOMContentLoaded', () => {
         resetInterval();
       });
     });
+    
+    // Setup clean click listener for the flow button using live DOM elements
+    if (btnFlow3) {
+      const newBtn = btnFlow3.cloneNode(true);
+      btnFlow3.parentNode.replaceChild(newBtn, btnFlow3);
+      
+      newBtn.addEventListener('click', () => {
+        if (currentSlide < slides.length - 1) {
+          goToSlide(currentSlide + 1);
+          resetInterval();
+        } else {
+          if (role === 'caregiver') {
+            showScreen('screen-7');
+          } else {
+            showScreen('screen-patient-home');
+          }
+        }
+      });
+    }
     
     function resetInterval() {
       if (onboardingInterval) clearInterval(onboardingInterval);
