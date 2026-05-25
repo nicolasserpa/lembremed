@@ -1825,6 +1825,7 @@ body.font-xlarge {
   border: none;
   border-radius: var(--radius-pill);
   padding: 14px;
+  font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 800;
   cursor: pointer;
@@ -1834,6 +1835,7 @@ body.font-xlarge {
   gap: 8px;
   transition: background-color 0.2s ease;
   box-shadow: 0 4px 10px rgba(153, 27, 27, 0.25);
+  width: 100%;
 }
 
 .btn-emergency-call:hover {

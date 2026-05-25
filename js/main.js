@@ -124,8 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // (Modo Pitch será inicializado ao final do script para evitar problemas de Temporal Dead Zone)
 
-  let activePatientId = 'cleusa';
-  let previousScreen = 'screen-9';
+  let activePatientId = null;
+  let previousScreen = 'screen-7';
 
   function renderPatientProfile(patientId) {
     activePatientId = patientId;
@@ -601,14 +601,16 @@ document.addEventListener('DOMContentLoaded', () => {
       announceToScreenReader(`Medicamento ${med.name} marcado como tomado`);
     }
     
-    // Bidirectional sync with Screen 12 (Maria Cleusa) if today
-    if (date === '2026-05-21') {
-      const patMeds = patientsProfileData['cleusa'].meds;
-      const patMed = patMeds.find(m => m.name.toLowerCase() === med.name.toLowerCase());
-      if (patMed) {
-        patMed.status = med.status;
+    // Bidirectional sync with patient home checklist if today
+    const currentPatientKey = Object.keys(appState.patients).find(k => k !== '__sync');
+    if (date === '2026-05-21' && currentPatientKey) {
+      const patMeds = patientsProfileData[currentPatientKey] && patientsProfileData[currentPatientKey].meds;
+      if (patMeds) {
+        const patMed = patMeds.find(m => m.name.toLowerCase() === med.name.toLowerCase());
+        if (patMed) patMed.status = med.status;
       }
       renderPatientHomeChecklist();
+      publishPatientSyncData();
     }
     
     renderAgenda();
@@ -916,10 +918,6 @@ document.addEventListener('DOMContentLoaded', () => {
         alerts: [],
         notes: []
       };
-      // For pitch purposes, let's also ensure 'cleusa' exists if we want to view profile 11
-      if (!appState.patients['cleusa']) {
-          appState.patients['cleusa'] = appState.patients[mockId];
-      }
       renderCaregiverDashboard();
     });
   }
@@ -932,10 +930,9 @@ document.addEventListener('DOMContentLoaded', () => {
       greetingEl.textContent = `Olá, ${firstName}!`;
     }
 
-    // No modo paciente, usamos o usuário logado como 'cleusa' se em modo de referência,
-    // ou se em pitch e vazio, listamos nada.
-    // Para simplificar no pitch, assumimos que se o modo paciente for selecionado e não houver paciente 'cleusa', criamos um mock se necessário ou deixamos vazio.
-    const patient = appState.patients['cleusa']; 
+    // Use the first patient key found (created on login) or null for empty state
+    const patientKey = Object.keys(appState.patients).find(k => k !== '__sync') || null;
+    const patient = patientKey ? appState.patients[patientKey] : null;
     const checklistContainer = document.getElementById('patient-home-checklist');
     const countText = document.getElementById('patient-home-summary-count');
     
@@ -1017,10 +1014,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const agendaToday = agendaData['2026-05-21'];
         if (agendaToday) {
           const agendaMed = agendaToday.meds.find(m => m.name.toLowerCase() === med.name.toLowerCase());
-          if (agendaMed) {
-            agendaMed.status = med.status;
-          }
+          if (agendaMed) agendaMed.status = med.status;
         }
+        
+        // Publish sync data to localStorage for real-time cross-tab update
+        publishPatientSyncData();
         
         // Update UI
         renderPatientHomeChecklist();
@@ -1032,7 +1030,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderPatientMedsList() {
-    const patient = patientsProfileData['cleusa'];
+    const patientKey = Object.keys(appState.patients).find(k => k !== '__sync') || null;
+    const patient = patientKey ? patientsProfileData[patientKey] : null;
     if (!patient) return;
     
     const container = document.getElementById('patient-meds-list-container');
@@ -1137,14 +1136,24 @@ document.addEventListener('DOMContentLoaded', () => {
         // Salva no estado
         appState.user.role = role;
         
-        // Inicializa o perfil do paciente principal se o perfil escolhido for Paciente,
-        // garantindo o funcionamento dinâmico perfeito de todas as visões do paciente no Pitch.
+        // Initialize patient profile dynamically on login
         if (role === 'patient') {
           const userName = appState.user.name || 'Paciente';
-          appState.patients['cleusa'] = {
+          // Generate or retrieve a persistent unique LM code
+          let lmCode = localStorage.getItem('lembremed_patient_code');
+          if (!lmCode) {
+            const digits = Math.floor(1000 + Math.random() * 9000);
+            lmCode = `LM-${digits}`;
+            localStorage.setItem('lembremed_patient_code', lmCode);
+          }
+          appState.user.lmCode = lmCode;
+          
+          const patientKey = 'patient_' + lmCode.replace('LM-', '');
+          appState.patients[patientKey] = {
             avatar: userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'PA',
             name: userName,
             age: 'Idade não informada',
+            lmCode: lmCode,
             status: 'Em Dia',
             statusClass: 'taken',
             adherence: 100,
@@ -1152,9 +1161,22 @@ document.addEventListener('DOMContentLoaded', () => {
             alerts: [],
             notes: []
           };
+          activePatientId = patientKey;
+          
+          // Show patient code card in settings
+          const codeCard = document.getElementById('patient-sync-code-card');
+          const codeDisplay = document.getElementById('patient-lm-code');
+          if (codeCard && codeDisplay) {
+            codeCard.style.display = 'block';
+            codeDisplay.textContent = lmCode;
+          }
+          
+          // Publish initial patient data for cross-tab sync
+          publishPatientSyncData();
         } else {
           appState.patients = {};
           patientsProfileData = appState.patients;
+          activePatientId = null;
         }
         
         setSidebarSwitcherRole(role, true); // Sync sidebar role selector, but prevent redirecting yet
@@ -1369,9 +1391,10 @@ document.addEventListener('DOMContentLoaded', () => {
           status: 'pendente'
         });
         
-        // Sync with patient profile (Cleusa)
-        if (appState.patients && appState.patients['cleusa'] && todayDate === '2026-05-21') {
-          appState.patients['cleusa'].meds.push({
+        // Sync with patient profile
+        const pk = activePatientId || Object.keys(appState.patients).find(k => k !== '__sync');
+        if (pk && appState.patients[pk] && todayDate === '2026-05-21') {
+          appState.patients[pk].meds.push({
             name: medName,
             dose: dose,
             time: timeStr,
@@ -1382,9 +1405,11 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Sort meds chronologically by time
       agendaData[todayDate].meds.sort((a, b) => a.time.localeCompare(b.time));
-      if (appState.patients && appState.patients['cleusa'] && todayDate === '2026-05-21') {
-        appState.patients['cleusa'].meds.sort((a, b) => a.time.localeCompare(b.time));
+      const pk2 = activePatientId || Object.keys(appState.patients).find(k => k !== '__sync');
+      if (pk2 && appState.patients[pk2] && todayDate === '2026-05-21') {
+        appState.patients[pk2].meds.sort((a, b) => a.time.localeCompare(b.time));
       }
+      publishPatientSyncData();
       
       // Reset search and times states
       addedTimes = [];
@@ -1523,24 +1548,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 5. Screen 7: Caregiver Dashboard Patient Card interactions (Safeguards for static buttons)
-  const btnPatientCleusa = document.getElementById('btn-patient-cleusa');
-  if (btnPatientCleusa) {
-    btnPatientCleusa.addEventListener('click', () => {
-      previousScreen = 'screen-7';
-      renderPatientProfile('cleusa');
-      showScreen('screen-11');
-    });
-  }
-  
-  const btnPatientPedro = document.getElementById('btn-patient-pedro');
-  if (btnPatientPedro) {
-    btnPatientPedro.addEventListener('click', () => {
-      previousScreen = 'screen-7';
-      renderPatientProfile('pedro');
-      showScreen('screen-11');
-    });
-  }
 
   // Screen 9: Interactive alerts card clicks and inline patient links
   const alertItems = document.querySelectorAll('#screen-9 .alert-item');
@@ -1723,70 +1730,93 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 50);
   }
 
-  // High Contrast Accessibility Mode Switcher (Screen 15 Settings)
-  const contrastToggle = document.getElementById('setting-high-contrast');
-  if (contrastToggle) {
-    const toggleHighContrast = () => {
-      const pill = contrastToggle.querySelector('div[style*="position: relative"]');
-      const thumb = pill.querySelector('div');
-      const phoneContainer = document.getElementById('phone-container');
+  // ==========================================================================
+  // ACCESSIBILITY SETTINGS — INDEPENDENT PATIENT & CAREGIVER
+  // ==========================================================================
+  
+  // Shared helper: creates an independent contrast toggle for a given element ID + localStorage key
+  function createContrastToggle(toggleId, storageKey, pillId, thumbId) {
+    const toggle = document.getElementById(toggleId);
+    if (!toggle) return;
+    const pill = pillId ? document.getElementById(pillId) : toggle.querySelector('div[style*="position: relative"]');
+    const thumb = thumbId ? document.getElementById(thumbId) : (pill ? pill.querySelector('div') : null);
+    if (!pill || !thumb) return;
+    
+    // Restore from localStorage
+    const stored = localStorage.getItem(storageKey) === 'true';
+    const phoneContainer = document.getElementById('phone-container');
+    if (stored) {
+      if (phoneContainer) phoneContainer.classList.add('high-contrast');
+      pill.style.backgroundColor = 'var(--color-primary)';
+      thumb.style.left = '22px';
+    }
+    
+    const toggleFn = () => {
       const isHighContrast = phoneContainer ? phoneContainer.classList.toggle('high-contrast') : false;
+      localStorage.setItem(storageKey, isHighContrast);
       if (isHighContrast) {
         pill.style.backgroundColor = 'var(--color-primary)';
         thumb.style.left = '22px';
-        announceToScreenReader("Contraste alto ativado");
+        announceToScreenReader('Contraste alto ativado');
       } else {
         pill.style.backgroundColor = 'var(--color-border)';
         thumb.style.left = '2px';
-        announceToScreenReader("Contraste alto desativado");
+        announceToScreenReader('Contraste alto desativado');
       }
     };
-
-    contrastToggle.addEventListener('click', toggleHighContrast);
-    contrastToggle.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        toggleHighContrast();
-      }
+    toggle.addEventListener('click', toggleFn);
+    toggle.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleFn(); }
     });
+    return () => {
+      // Reset function for logout
+      if (phoneContainer) phoneContainer.classList.remove('high-contrast');
+      pill.style.backgroundColor = 'var(--color-border)';
+      thumb.style.left = '2px';
+    };
   }
 
-  // Font Size Accessibility Selector (Screen 15 Settings)
-  const fontSizeToggle = document.getElementById('setting-font-size');
-  const fontSizeStatusText = document.getElementById('font-size-status');
-  if (fontSizeToggle && fontSizeStatusText) {
+  function createFontSizeToggle(toggleId, statusId, storageKey) {
+    const toggle = document.getElementById(toggleId);
+    const statusText = document.getElementById(statusId);
+    if (!toggle || !statusText) return;
     const fontSizeClasses = ['font-small', 'font-medium', 'font-large', 'font-xlarge'];
     const fontSizeLabels = ['Pequeno', 'Médio', 'Grande', 'Muito Grande'];
     
-    // Default size is 'Médio' (index 1)
-    let activeSizeIndex = 1;
+    // Restore from localStorage
+    let activeSizeIndex = parseInt(localStorage.getItem(storageKey) || '1', 10);
+    fontSizeClasses.forEach(cls => document.body.classList.remove(cls));
+    if (fontSizeClasses[activeSizeIndex] !== 'font-medium') {
+      document.body.classList.add(fontSizeClasses[activeSizeIndex]);
+    }
+    statusText.textContent = fontSizeLabels[activeSizeIndex];
     
-    const cycleFontSize = () => {
+    const cycleFn = () => {
       activeSizeIndex = (activeSizeIndex + 1) % fontSizeClasses.length;
-      
-      // Reset classes
       fontSizeClasses.forEach(cls => document.body.classList.remove(cls));
-      
-      // Set new class
       const newClass = fontSizeClasses[activeSizeIndex];
       const newLabel = fontSizeLabels[activeSizeIndex];
-      
-      if (newClass !== 'font-medium') {
-        document.body.classList.add(newClass);
-      }
-      
-      fontSizeStatusText.textContent = newLabel;
+      if (newClass !== 'font-medium') document.body.classList.add(newClass);
+      statusText.textContent = newLabel;
+      localStorage.setItem(storageKey, activeSizeIndex);
       announceToScreenReader(`Tamanho de letra ajustado para ${newLabel}`);
     };
-
-    fontSizeToggle.addEventListener('click', cycleFontSize);
-    fontSizeToggle.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        cycleFontSize();
-      }
+    toggle.addEventListener('click', cycleFn);
+    toggle.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cycleFn(); }
     });
   }
+  
+  // Patient accessibility toggles (Screen 15) — key: patient_*
+  const patResetContrast = createContrastToggle('setting-high-contrast', 'lembremed_patient_contrast', null, null);
+  createFontSizeToggle('setting-font-size', 'font-size-status', 'lembremed_patient_fontsize');
+  
+  // Caregiver accessibility toggles (Screen 10) — key: caregiver_*
+  createContrastToggle('setting-cg-high-contrast', 'lembremed_caregiver_contrast', 'cg-contrast-toggle-pill', 'cg-contrast-toggle-thumb');
+  createFontSizeToggle('setting-cg-font-size', 'cg-font-size-status', 'lembremed_caregiver_fontsize');
+  
+  // Keep reference to the old contrastToggle pill/thumb for the reset button (fallback)
+  const contrastToggle = document.getElementById('setting-high-contrast');
 
   const noteInput = document.getElementById('profile-note-input');
   const btnSubmitNote = document.getElementById('btn-submit-note');
@@ -1984,33 +2014,50 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Reset Upgraded Screen 6 state & patient checklist safely
-    if (patientsProfileData['cleusa'] && patientsProfileData['cleusa'].meds) {
-      patientsProfileData['cleusa'].meds.forEach(med => {
-        med.status = med.name.toLowerCase().includes('losartana') ? 'tomado' : 'pendente';
-      });
-    }
-    if (patientsProfileData['pedro'] && patientsProfileData['pedro'].meds) {
-      patientsProfileData['pedro'].meds.forEach(med => {
-        med.status = med.name.toLowerCase().includes('metformina') ? 'tomado' : 'atrasado';
-      });
-    }
+    // Reset patient data cleanly
+    activePatientId = null;
+    
+    // Clear sync data from localStorage
+    localStorage.removeItem('lembremed_patient_code');
+    localStorage.removeItem('lembremed_sync_patients');
 
+    // Hide patient code card
+    const codeCard = document.getElementById('patient-sync-code-card');
+    if (codeCard) codeCard.style.display = 'none';
+    
     initAgendaData();
     selectedDate = '2026-05-21';
     renderAgenda();
     renderPatientHomeChecklist();
     renderPatientMedsList();
     
-    // Disable high contrast on phone container
+    // Disable high contrast and reset font size on phone container
     const phoneContainer = document.getElementById('phone-container');
     if (phoneContainer) phoneContainer.classList.remove('high-contrast');
-    const pill = contrastToggle.querySelector('div[style*="position: relative"]');
-    const thumb = pill.querySelector('div');
-    if (pill && thumb) {
-      pill.style.backgroundColor = 'var(--color-border)';
-      thumb.style.left = '2px';
+    localStorage.removeItem('lembremed_patient_contrast');
+    localStorage.removeItem('lembremed_caregiver_contrast');
+    localStorage.removeItem('lembremed_patient_fontsize');
+    localStorage.removeItem('lembremed_caregiver_fontsize');
+    document.body.classList.remove('font-small', 'font-large', 'font-xlarge');
+    // Reset patient toggle pill visually
+    if (contrastToggle) {
+      const pill = contrastToggle.querySelector('div[style*="position: relative"]');
+      if (pill) {
+        const thumb = pill.querySelector('div');
+        pill.style.backgroundColor = 'var(--color-border)';
+        if (thumb) thumb.style.left = '2px';
+      }
     }
+    // Reset caregiver toggle pill visually
+    const cgPill = document.getElementById('cg-contrast-toggle-pill');
+    const cgThumb = document.getElementById('cg-contrast-toggle-thumb');
+    if (cgPill) cgPill.style.backgroundColor = 'var(--color-border)';
+    if (cgThumb) cgThumb.style.left = '2px';
+    // Reset font-size status displays
+    const fsStatus = document.getElementById('font-size-status');
+    if (fsStatus) fsStatus.textContent = 'Médio';
+    const cgFsStatus = document.getElementById('cg-font-size-status');
+    if (cgFsStatus) cgFsStatus.textContent = 'Médio';
 
     // Route back to Screen 1
     showScreen('screen-1');
@@ -2165,7 +2212,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const feed = document.getElementById('patient-alerts-feed');
     if (!feed) return;
     
-    const patient = appState.patients['cleusa'] || patientsProfileData['cleusa'];
+    const pk = activePatientId || Object.keys(appState.patients).find(k => k !== '__sync');
+    const patient = pk ? (appState.patients[pk] || patientsProfileData[pk]) : null;
     feed.innerHTML = '';
     
     if (!patient || !patient.meds || patient.meds.length === 0) {
@@ -2349,7 +2397,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!toast) return;
     
     // Only show if there is a pending med
-    const patient = appState.patients['cleusa'];
+    const pk = activePatientId || Object.keys(appState.patients).find(k => k !== '__sync');
+    const patient = pk ? appState.patients[pk] : null;
     if (!patient || !patient.meds) return;
     
     const firstPending = patient.meds.find(m => m.status !== 'tomado');
@@ -2394,7 +2443,8 @@ document.addEventListener('DOMContentLoaded', () => {
       cards.forEach((card, index) => {
         card.style.cursor = 'pointer';
         card.addEventListener('click', () => {
-          const patient = patientsProfileData['cleusa'];
+          const pk = activePatientId || Object.keys(appState.patients).find(k => k !== '__sync');
+          const patient = pk ? patientsProfileData[pk] : null;
           if (patient && patient.meds[index]) {
             selectedMedForEdit = { index, med: patient.meds[index] };
             document.getElementById('bottom-sheet-med-name').textContent = patient.meds[index].name;
@@ -2416,11 +2466,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnRemoveMed) {
     btnRemoveMed.addEventListener('click', () => {
       if (selectedMedForEdit !== null) {
-        const patient = patientsProfileData['cleusa'];
+        const pk = activePatientId || Object.keys(appState.patients).find(k => k !== '__sync');
+        const patient = pk ? patientsProfileData[pk] : null;
+        if (!patient) return;
         patient.meds.splice(selectedMedForEdit.index, 1);
         
-        if (appState.patients['cleusa'] && appState.patients['cleusa'].meds) {
-          appState.patients['cleusa'].meds.splice(selectedMedForEdit.index, 1);
+        if (pk && appState.patients[pk] && appState.patients[pk].meds) {
+          appState.patients[pk].meds.splice(selectedMedForEdit.index, 1);
         }
         
         const todayDate = selectedDate || '2026-05-21';
@@ -2466,6 +2518,139 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   setTimeout(attachMedClickListener, 500);
+
+  // ==========================================================================
+  // TASK 4: REAL-TIME CROSS-TAB SYNC VIA LOCALSTORAGE
+  // ==========================================================================
+  
+  const SYNC_KEY = 'lembremed_sync_patients';
+  
+  // Publish current patient data to localStorage so other tabs can read it
+  function publishPatientSyncData() {
+    const patientKey = activePatientId || Object.keys(appState.patients).find(k => k !== '__sync');
+    if (!patientKey || !appState.patients[patientKey]) return;
+    const patient = appState.patients[patientKey];
+    if (!patient.lmCode) return;
+    
+    const syncData = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}');
+    syncData[patient.lmCode] = {
+      lmCode: patient.lmCode,
+      name: patient.name,
+      avatar: patient.avatar,
+      age: patient.age,
+      meds: patient.meds,
+      alerts: patient.alerts,
+      notes: patient.notes,
+      adherence: patient.adherence,
+      status: patient.status,
+      statusClass: patient.statusClass,
+      updatedAt: Date.now()
+    };
+    localStorage.setItem(SYNC_KEY, JSON.stringify(syncData));
+  }
+  
+  // Listen for storage changes from other tabs (caregiver view auto-updates)
+  window.addEventListener('storage', (e) => {
+    if (e.key !== SYNC_KEY) return;
+    if (!e.newValue) return;
+    if (appState.user.role !== 'caregiver') return;
+    
+    const syncData = JSON.parse(e.newValue || '{}');
+    let updated = false;
+    
+    Object.entries(syncData).forEach(([lmCode, patientData]) => {
+      // Find the matching patient key in caregiver's patients list
+      const matchKey = Object.keys(appState.patients).find(k => appState.patients[k].lmCode === lmCode);
+      if (!matchKey) return;
+      
+      // Update the patient data
+      appState.patients[matchKey] = { ...appState.patients[matchKey], ...patientData };
+      patientsProfileData[matchKey] = appState.patients[matchKey];
+      updated = true;
+    });
+    
+    if (updated) {
+      // Silently re-render the caregiver dashboard if visible
+      renderCaregiverDashboard();
+      // If the profile screen of this patient is open, update it too
+      const screen11 = document.getElementById('screen-11');
+      if (screen11 && screen11.classList.contains('active') && activePatientId) {
+        renderPatientProfile(activePatientId);
+      }
+    }
+  });
+  
+  // Link patient by LM code (Caregiver side)
+  const btnLinkByCode = document.getElementById('btn-link-patient-by-code');
+  const linkCodeInput = document.getElementById('link-patient-code');
+  const linkErrorEl = document.getElementById('link-patient-error');
+  const linkSuccessEl = document.getElementById('link-patient-success');
+  
+  if (btnLinkByCode && linkCodeInput) {
+    linkCodeInput.addEventListener('input', () => {
+      // Auto-uppercase and format
+      let val = linkCodeInput.value.toUpperCase().replace(/[^LM0-9-]/g, '');
+      linkCodeInput.value = val;
+    });
+    
+    btnLinkByCode.addEventListener('click', () => {
+      const code = linkCodeInput.value.trim().toUpperCase();
+      if (linkErrorEl) linkErrorEl.style.display = 'none';
+      if (linkSuccessEl) linkSuccessEl.style.display = 'none';
+      
+      if (!code.match(/^LM-\d{4}$/)) {
+        if (linkErrorEl) {
+          linkErrorEl.textContent = 'Formato inválido. Use: LM-1234';
+          linkErrorEl.style.display = 'block';
+        }
+        return;
+      }
+      
+      // Check if patient exists in localStorage sync store
+      const syncData = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}');
+      const patientData = syncData[code];
+      
+      if (!patientData) {
+        if (linkErrorEl) {
+          linkErrorEl.textContent = 'Código não encontrado. O paciente precisa estar conectado no outro dispositivo/aba.';
+          linkErrorEl.style.display = 'block';
+        }
+        return;
+      }
+      
+      // Check if already linked
+      const alreadyLinked = Object.values(appState.patients).some(p => p.lmCode === code);
+      if (alreadyLinked) {
+        if (linkSuccessEl) {
+          linkSuccessEl.textContent = `${patientData.name} já está vinculado!`;
+          linkSuccessEl.style.display = 'block';
+        }
+        return;
+      }
+      
+      // Link the patient!
+      const newKey = 'linked_' + code.replace('LM-', '');
+      appState.patients[newKey] = {
+        ...patientData,
+        lmCode: code
+      };
+      patientsProfileData = appState.patients;
+      
+      if (linkCodeInput) linkCodeInput.value = '';
+      if (linkSuccessEl) {
+        linkSuccessEl.textContent = `✓ ${patientData.name} vinculado com sucesso em tempo real!`;
+        linkSuccessEl.style.display = 'block';
+      }
+      
+      renderCaregiverDashboard();
+      
+      // Navigate to caregiver dashboard after a short delay
+      setTimeout(() => showScreen('screen-7'), 1500);
+    });
+  }
+  
+  // Expose publishPatientSyncData globally for use in other handlers
+  window.publishPatientSyncData = publishPatientSyncData;
 
   // Initialização padrão no Modo Pitch (Moved here to avoid Temporal Dead Zone errors)
   clearPitchData();
