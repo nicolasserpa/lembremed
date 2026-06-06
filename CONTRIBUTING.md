@@ -89,11 +89,11 @@ following layout and styling rules:
 
 * Never use raw or pixel-based border radiuses unless there is a hardware
   mockup restriction.
-* **Cards & Panels**: Use `var(--radius-lg)` (18px) for major layout
+* **Cards & Panels**: Use `var(--radius-lg)` (12px) for major layout
   containers and cards.
-* **Buttons & Chips**: Use `var(--radius-pill)` (9999px) for primary,
+* **Buttons & Chips**: Use `var(--radius-md)` (8px) for primary,
   secondary, and chip buttons.
-* **Inputs & Controls**: Use `var(--radius-md)` (12px) for form inputs,
+* **Inputs & Controls**: Use `var(--radius-md)` (8px) for form inputs,
   textareas, and selection boxes.
 
 ### B. No JS Inline Styles
