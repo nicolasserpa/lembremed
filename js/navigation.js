@@ -65,7 +65,7 @@ if (globalNavContainer) {
 }
 
 function updateActiveTabsForScreen(screenId) {
-  if (!globalNavContainer || !window.Components) return;
+  if (!globalNavContainer || typeof Components === 'undefined') return;
   
   // Determine active tab and role based on screenId
   let activeTab = '';
