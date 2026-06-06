@@ -396,7 +396,7 @@
 
 .patient-status-badge {
   padding: 4px 10px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
@@ -783,7 +783,7 @@
   color: var(--color-primary);
   background-color: var(--color-primary-light);
   padding: 2px 8px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
 }
 
 /* High Contrast Accessibility-First Medication Cards */
@@ -860,7 +860,7 @@
 /* Accessibility Badges */
 .agenda-status-badge {
   padding: 6px 12px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
@@ -1235,7 +1235,7 @@
   background-color: var(--color-danger-text);
   color: var(--color-white);
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   padding: 14px;
   font-family: var(--font-sans);
   font-size: 14px;
