@@ -27,7 +27,7 @@ function startSimulatedCall(patientId) {
     if (toastTitle) toastTitle.textContent = `Chamando ${patient.name}…`;
     if (toastSubtitle) toastSubtitle.textContent = `Ligando para contato principal`;
   }
-  
+
   if (toastCall) {
     toastCall.classList.add('active');
   }
@@ -142,7 +142,7 @@ function createContrastToggle(toggleId, storageKey, pillId, thumbId) {
   const pill = pillId ? document.getElementById(pillId) : toggle.querySelector('div[style*="position: relative"]');
   const thumb = thumbId ? document.getElementById(thumbId) : (pill ? pill.querySelector('div') : null);
   if (!pill || !thumb) return;
-  
+
   // Restore from localStorage
   const stored = localStorage.getItem(storageKey) === 'true';
   const phoneContainer = document.getElementById('phone-container');
@@ -151,7 +151,7 @@ function createContrastToggle(toggleId, storageKey, pillId, thumbId) {
     pill.style.backgroundColor = 'var(--color-primary)';
     thumb.style.left = '22px';
   }
-  
+
   const toggleFn = () => {
     const isHighContrast = phoneContainer ? phoneContainer.classList.toggle('high-contrast') : false;
     localStorage.setItem(storageKey, isHighContrast);
@@ -183,7 +183,7 @@ function createFontSizeToggle(toggleId, statusId, storageKey) {
   if (!toggle || !statusText) return;
   const fontSizeClasses = ['font-small', 'font-medium', 'font-large', 'font-xlarge'];
   const fontSizeLabels = ['Pequeno', 'Médio', 'Grande', 'Muito Grande'];
-  
+
   // Restore from localStorage
   let activeSizeIndex = parseInt(localStorage.getItem(storageKey) || '1', 10);
   fontSizeClasses.forEach(cls => document.body.classList.remove(cls));
@@ -191,7 +191,7 @@ function createFontSizeToggle(toggleId, statusId, storageKey) {
     document.body.classList.add(fontSizeClasses[activeSizeIndex]);
   }
   statusText.textContent = fontSizeLabels[activeSizeIndex];
-  
+
   const cycleFn = () => {
     activeSizeIndex = (activeSizeIndex + 1) % fontSizeClasses.length;
     fontSizeClasses.forEach(cls => document.body.classList.remove(cls));
@@ -229,14 +229,42 @@ function submitNewCaregiverNote() {
 
   const patient = patientsProfileData[activePatientId];
   if (patient) {
-    patient.notes.push({
-      author: 'Você (Cuidador)',
-      time: 'Hoje',
-      text: text
-    });
+    const newNote = {
+      id: 'note_' + Date.now(),
+      title: 'Nota de Acompanhamento',
+      date: 'Hoje, ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+      content: text,
+      author: 'Você (Cuidador)'
+    };
+    patient.notes.push(newNote);
     noteInput.value = '';
     renderNotesFeed();
+    announceToScreenReader("Anotação salva com sucesso.");
   }
+}
+
+function deleteNote(noteId) {
+  const patient = patientsProfileData[activePatientId];
+  if (patient && patient.notes) {
+    const initialLength = patient.notes.length;
+    patient.notes = patient.notes.filter(n => n.id !== noteId);
+    if (patient.notes.length < initialLength) {
+      renderNotesFeed();
+      announceToScreenReader("Anotação excluída.");
+    }
+  }
+}
+
+// Event delegation for note deletion
+const notesFeedContainer = document.getElementById('profile-notes-feed');
+if (notesFeedContainer) {
+  notesFeedContainer.addEventListener('click', (e) => {
+    const deleteBtn = e.target.closest('.btn-delete-note');
+    if (deleteBtn) {
+      const noteId = deleteBtn.getAttribute('data-id');
+      deleteNote(noteId);
+    }
+  });
 }
 
 if (btnSubmitNote) {
@@ -262,7 +290,7 @@ medRows.forEach(row => {
   const toggleRow = () => {
     const isTaken = row.classList.contains('taken');
     const statusText = row.querySelector('.med-status-indicator');
-    
+
     if (isTaken) {
       row.classList.remove('taken');
       row.setAttribute('aria-checked', 'false');
@@ -288,4 +316,3 @@ medRows.forEach(row => {
     }
   });
 });
-
