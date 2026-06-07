@@ -83,7 +83,7 @@ if (btnFlow1) {
     // Save to user state
     appState.user.name = nameValue;
     appState.user.age = parsedAge;
-    
+
     showScreen('screen-2');
   });
 }
@@ -112,10 +112,10 @@ if (btnFlow2) {
     const selectedCard = document.querySelector('.role-card.selected');
     if (selectedCard) {
       const role = selectedCard.getAttribute('data-role') === 'cuidador' ? 'caregiver' : 'patient';
-      
+
       // Save to state
       appState.user.role = role;
-      
+
       // Initialize patient profile dynamically on login
       if (role === 'patient') {
         const userName = appState.user.name || 'Paciente';
@@ -127,7 +127,7 @@ if (btnFlow2) {
           localStorage.setItem('lembremed_patient_code', lmCode);
         }
         appState.user.lmCode = lmCode;
-        
+
         const patientKey = 'patient_' + lmCode.replace('LM-', '');
         appState.patients[patientKey] = {
           avatar: userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'PA',
@@ -142,22 +142,22 @@ if (btnFlow2) {
           notes: []
         };
         activePatientId = patientKey;
-        
+
         // If previously linked by the caregiver locally, restore name and add alert
         const linkedCg = localStorage.getItem('lembremed_linked_' + lmCode);
         if (linkedCg) {
           appState.patients[patientKey].caregiverName = linkedCg;
-          
+
           const caregiverContactCard = document.getElementById('caregiver-contact-card');
           if (caregiverContactCard) {
             caregiverContactCard.style.display = 'block';
           }
-          
+
           const cgNameEl = document.getElementById('caregiver-contact-name');
           if (cgNameEl) {
             cgNameEl.textContent = linkedCg;
           }
-          
+
           appState.patients[patientKey].alerts.push({
             id: 'cg_link_' + Date.now(),
             type: 'caregiver_linked',
@@ -167,7 +167,7 @@ if (btnFlow2) {
             class: 'success'
           });
         }
-        
+
         // Show patient code card in settings
         const codeCard = document.getElementById('patient-sync-code-card');
         const codeDisplay = document.getElementById('patient-lm-code');
@@ -175,7 +175,7 @@ if (btnFlow2) {
           codeCard.style.display = 'block';
           codeDisplay.textContent = lmCode;
         }
-        
+
         // Publish initial patient data for cross-tab sync
         publishPatientSyncData();
       } else {
@@ -183,7 +183,7 @@ if (btnFlow2) {
         patientsProfileData = appState.patients;
         activePatientId = null;
       }
-      
+
       setSidebarSwitcherRole(role, true); // Sync sidebar role selector, but prevent redirecting yet
     }
     showScreen('screen-3');
@@ -194,9 +194,7 @@ if (btnFlow2) {
 const btnFlow3 = document.getElementById('btn-flow-3');
 if (btnFlow3) {
   btnFlow3.addEventListener('click', () => {
-    const selectedCard = document.querySelector('.role-card.selected');
-    const isCaregiver = selectedCard && selectedCard.getAttribute('data-role') === 'cuidador';
-    if (isCaregiver) {
+    if (appState.user.role === 'caregiver') {
       showScreen('screen-7');
     } else {
       showScreen('screen-patient-home');
@@ -235,7 +233,7 @@ function populatePickerColumns() {
     const topBuffer = document.createElement('div');
     topBuffer.style.height = '60px';
     hoursColumn.appendChild(topBuffer);
-    
+
     // Duplicate 3 times for iOS infinite circular loop effect
     for (let set = 0; set < 3; set++) {
       pickerHours.forEach(h => {
@@ -246,28 +244,28 @@ function populatePickerColumns() {
         hoursColumn.appendChild(item);
       });
     }
-    
+
     const bottomBuffer = document.createElement('div');
     bottomBuffer.style.height = '60px';
     hoursColumn.appendChild(bottomBuffer);
-    
+
     // Inertial scroll and infinite loop
     setupIosPickerColumn(hoursColumn, pickerHours, (val) => {
       selectedHour = val;
     });
-    
+
     // Initial scroll to the middle (Set 1) at value '12' (index 24 + 12 = 36)
     setTimeout(() => {
       hoursColumn.scrollTop = 36 * 30;
       hoursColumn.targetScrollTop = 36 * 30;
     }, 100);
   }
-  
+
   if (minutesColumn && minutesColumn.children.length === 0) {
     const topBuffer = document.createElement('div');
     topBuffer.style.height = '60px';
     minutesColumn.appendChild(topBuffer);
-    
+
     // Duplicate 3 times for iOS infinite circular loop effect
     for (let set = 0; set < 3; set++) {
       pickerMinutes.forEach(m => {
@@ -278,16 +276,16 @@ function populatePickerColumns() {
         minutesColumn.appendChild(item);
       });
     }
-    
+
     const bottomBuffer = document.createElement('div');
     bottomBuffer.style.height = '60px';
     minutesColumn.appendChild(bottomBuffer);
-    
+
     // Inertial scroll and infinite loop
     setupIosPickerColumn(minutesColumn, pickerMinutes, (val) => {
       selectedMinute = val;
     });
-    
+
     // Initial scroll to the middle (Set 1) at value '00' (index 60 + 0 = 60)
     setTimeout(() => {
       minutesColumn.scrollTop = 60 * 30;
@@ -300,31 +298,31 @@ function setupIosPickerColumn(columnEl, itemsArray, onValueChange) {
   const N = itemsArray.length;
   const itemHeight = 30;
   const setHeight = N * itemHeight;
-  
+
   // Captures and accumulates mouse scroll event in an inertial and dampened way (iOS physics)
   columnEl.targetScrollTop = columnEl.scrollTop;
-  
+
   columnEl.addEventListener('wheel', (e) => {
     e.preventDefault();
     const direction = Math.sign(e.deltaY);
-    
+
     // If out of sync for any reason, synchronize
     if (Math.abs(columnEl.targetScrollTop - columnEl.scrollTop) > 60) {
       columnEl.targetScrollTop = Math.round(columnEl.scrollTop / itemHeight) * itemHeight;
     }
-    
+
     // Shifts exactly 1 item (30px) in the direction of the scroll tick
     columnEl.targetScrollTop += direction * itemHeight;
-    
+
     columnEl.scrollTo({
       top: columnEl.targetScrollTop,
       behavior: 'smooth'
     });
   }, { passive: false });
-  
+
   columnEl.addEventListener('scroll', () => {
     let currentScroll = columnEl.scrollTop;
-    
+
     // Silent wrap-around for infinite circular effect
     if (currentScroll < setHeight) {
       columnEl.scrollTop += setHeight;
@@ -339,7 +337,7 @@ function setupIosPickerColumn(columnEl, itemsArray, onValueChange) {
       }
       currentScroll = columnEl.scrollTop;
     }
-    
+
     const index = Math.round(currentScroll / itemHeight);
     const items = columnEl.querySelectorAll('.ios-picker-item');
     items.forEach((item, i) => {
@@ -349,7 +347,7 @@ function setupIosPickerColumn(columnEl, itemsArray, onValueChange) {
         item.classList.remove('active');
       }
     });
-    
+
     const actualIndex = index % N;
     if (itemsArray[actualIndex] !== undefined) {
       onValueChange(itemsArray[actualIndex]);
@@ -375,10 +373,10 @@ if (btnAddSelectedTime) {
 
 function renderTimeChips() {
   if (!selectedTimesChipsList) return;
-  
+
   // Clear all except empty state
   selectedTimesChipsList.innerHTML = '';
-  
+
   if (addedTimes.length === 0) {
     if (timesEmptyState) {
       selectedTimesChipsList.appendChild(timesEmptyState);
@@ -387,7 +385,7 @@ function renderTimeChips() {
     }
     return;
   }
-  
+
   addedTimes.forEach(timeStr => {
     const chip = document.createElement('div');
     chip.className = 'time-chip';
@@ -400,12 +398,12 @@ function renderTimeChips() {
         </svg>
       </button>
     `;
-    
+
     chip.querySelector('button').addEventListener('click', () => {
       addedTimes = addedTimes.filter(t => t !== timeStr);
       renderTimeChips();
     });
-    
+
     selectedTimesChipsList.appendChild(chip);
   });
 }
@@ -416,8 +414,8 @@ if (btnBackToSearch) {
     const searchPhase = document.getElementById('med-search-phase');
     const timesPhase = document.getElementById('med-times-phase');
     if (searchPhase && timesPhase) {
-      timesPhase.style.display = 'none';
-      searchPhase.style.display = 'flex';
+      timesPhase.classList.add('d-none');
+      searchPhase.classList.remove('d-none');
     }
   });
 }
@@ -427,59 +425,69 @@ if (btnConfirmMedTimes) {
   btnConfirmMedTimes.addEventListener('click', () => {
     const selectedMedItem = document.querySelector('#screen-5 .dropdown-item.selected');
     if (!selectedMedItem) return;
-    
+
     const medName = selectedMedItem.getAttribute('data-med') || 'Novo Medicamento';
     const dose = selectedMedItem.querySelector('p') ? selectedMedItem.querySelector('p').textContent : 'Uso oral';
-    
+
     // If user hasn't added any times, add the current picker time by default
     if (addedTimes.length === 0) {
       addedTimes.push(`${selectedHour}:${selectedMinute}`);
     }
-    
-    const todayDate = selectedDate || '2026-05-21';
-    if (!agendaData[todayDate]) {
-      agendaData[todayDate] = { dateLabel: 'Hoje, 21 de Maio', meds: [] };
-    }
-    
-    // Register all chosen times to the agenda
-    addedTimes.forEach(timeStr => {
-      agendaData[todayDate].meds.push({
-        name: medName,
-        dose: dose,
-        time: timeStr,
-        status: 'pendente'
-      });
-      
-      // Sync with patient profile
-      const pk = activePatientId || Object.keys(appState.patients).find(k => k !== '__sync');
-      if (pk && appState.patients[pk] && todayDate === '2026-05-21') {
-        appState.patients[pk].meds.push({
-          name: medName,
-          dose: dose,
-          time: timeStr,
-          status: 'pendente'
+
+    const selectedWeekdays = getSelectedWeekdays();
+
+    // Register all chosen times to all selected weekdays in agendaData
+    Object.keys(agendaData).forEach(dateStr => {
+      const dateObj = new Date(dateStr + 'T00:00:00');
+      const dayOfWeek = dateObj.getDay();
+
+      if (selectedWeekdays.includes(dayOfWeek)) {
+        addedTimes.forEach(timeStr => {
+          // Check if already exists to avoid duplicates if adding same med twice
+          const exists = agendaData[dateStr].meds.some(m => m.name === medName && m.time === timeStr);
+          if (!exists) {
+            agendaData[dateStr].meds.push({
+              name: medName,
+              dose: dose,
+              time: timeStr,
+              status: 'pendente'
+            });
+          }
         });
+        agendaData[dateStr].meds.sort((a, b) => a.time.localeCompare(b.time));
       }
     });
-    
-    // Sort meds chronologically by time
-    agendaData[todayDate].meds.sort((a, b) => a.time.localeCompare(b.time));
-    const pk2 = activePatientId || Object.keys(appState.patients).find(k => k !== '__sync');
-    if (pk2 && appState.patients[pk2] && todayDate === '2026-05-21') {
-      appState.patients[pk2].meds.sort((a, b) => a.time.localeCompare(b.time));
+
+    // Sync with patient profile if applicable (assuming patient's meds list shows "all active meds")
+    const pk = activePatientId || Object.keys(appState.patients).find(k => k !== '__sync');
+    if (pk && appState.patients[pk]) {
+      addedTimes.forEach(timeStr => {
+        const exists = appState.patients[pk].meds.some(m => m.name === medName && m.time === timeStr);
+        if (!exists) {
+          appState.patients[pk].meds.push({
+            name: medName,
+            dose: dose,
+            time: timeStr,
+            status: 'pendente',
+            weekdays: selectedWeekdays
+          });
+        }
+      });
+      appState.patients[pk].meds.sort((a, b) => a.time.localeCompare(b.time));
     }
+
     publishPatientSyncData();
-    
+
     // Reset search and times states
     addedTimes = [];
     const searchPhase = document.getElementById('med-search-phase');
     const timesPhase = document.getElementById('med-times-phase');
     if (searchPhase && timesPhase) {
-      timesPhase.style.display = 'none';
-      searchPhase.style.display = 'flex';
+      timesPhase.classList.add('d-none');
+      searchPhase.classList.remove('d-none');
     }
     if (searchInput) searchInput.value = '';
-    
+
     renderAgenda();
     renderPatientHomeChecklist(); // Sync patient dashboard
     if (appState.user.role === 'caregiver') {
@@ -491,6 +499,22 @@ if (btnConfirmMedTimes) {
   });
 }
 
+// 4b. Weekday Selector logic
+const weekdayChips = document.querySelectorAll('.weekday-chip');
+weekdayChips.forEach(chip => {
+  chip.addEventListener('click', () => {
+    chip.classList.toggle('selected');
+  });
+});
+
+function getSelectedWeekdays() {
+  const selected = [];
+  document.querySelectorAll('.weekday-chip.selected').forEach(chip => {
+    selected.push(parseInt(chip.getAttribute('data-day'), 10));
+  });
+  return selected;
+}
+
 // Screen 5 -> Switch to Times Picker phase
 const btnFlow5 = document.getElementById('btn-flow-5');
 if (btnFlow5) {
@@ -499,24 +523,25 @@ if (btnFlow5) {
     if (selectedMedItem) {
       const medName = selectedMedItem.getAttribute('data-med') || 'Novo Medicamento';
       const dose = selectedMedItem.querySelector('p') ? selectedMedItem.querySelector('p').textContent : 'Uso oral';
-      
+
       // Show Phase 2 selected medicine info
       const previewName = document.getElementById('preview-med-name');
       const previewDose = document.getElementById('preview-med-dose');
       if (previewName) previewName.textContent = medName;
       if (previewDose) previewDose.textContent = dose;
-      
+
       // Reset added times and display chips
       addedTimes = [];
       renderTimeChips();
-      
+
       // Switch Phase views
       const searchPhase = document.getElementById('med-search-phase');
       const timesPhase = document.getElementById('med-times-phase');
       if (searchPhase && timesPhase) {
-        searchPhase.style.display = 'none';
-        timesPhase.style.display = 'flex';
-        
+        searchPhase.classList.add('d-none');
+        timesPhase.classList.remove('d-none');
+        timesPhase.style.display = 'flex'; // Ensure flex layout if d-none was removed
+
         // Populate iOS Time picker columns dynamically
         populatePickerColumns();
       }
@@ -534,7 +559,7 @@ roleCards.forEach(card => {
     });
     card.classList.add('selected');
     card.setAttribute('aria-checked', 'true');
-    
+
     const selectedRole = card.getAttribute('data-role');
     if (selectedRole === 'cuidador') {
       document.getElementById('btn-flow-3').setAttribute('data-next-flow', 'caregiver');
@@ -544,7 +569,7 @@ roleCards.forEach(card => {
   };
 
   card.addEventListener('click', selectCard);
-  
+
   card.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -562,10 +587,10 @@ if (searchInput && dropdownResults) {
   const showDropdown = () => {
     filterResults();
   };
-  
+
   searchInput.addEventListener('focus', showDropdown);
   searchInput.addEventListener('click', showDropdown);
-  
+
   const filterResults = () => {
     const query = searchInput.value.toLowerCase().trim();
     if (query === '') {
@@ -574,7 +599,7 @@ if (searchInput && dropdownResults) {
       return;
     }
     let visibleCount = 0;
-    
+
     searchDropdownItems.forEach(item => {
       const medName = (item.getAttribute('data-med') || '').toLowerCase();
       if (medName.includes(query)) {
@@ -584,7 +609,7 @@ if (searchInput && dropdownResults) {
         item.style.display = 'none';
       }
     });
-    
+
     if (visibleCount === 0) {
       dropdownResults.classList.add('d-none');
       dropdownResults.style.display = 'none';
@@ -593,9 +618,9 @@ if (searchInput && dropdownResults) {
       dropdownResults.style.display = 'block';
     }
   };
-  
+
   searchInput.addEventListener('input', filterResults);
-  
+
   searchDropdownItems.forEach(item => {
     // Inject accessibility attributes dynamically
     item.setAttribute('tabindex', '0');
@@ -604,7 +629,7 @@ if (searchInput && dropdownResults) {
     const selectItem = () => {
       searchDropdownItems.forEach(i => i.classList.remove('selected'));
       item.classList.add('selected');
-      
+
       const medName = item.getAttribute('data-med');
       searchInput.value = medName;
       dropdownResults.classList.add('d-none');
@@ -624,7 +649,7 @@ if (searchInput && dropdownResults) {
       }
     });
   });
-  
+
   document.addEventListener('click', (e) => {
     if (!searchInput.contains(e.target) && !dropdownResults.contains(e.target)) {
       dropdownResults.classList.add('d-none');
@@ -709,4 +734,3 @@ if (btnScreen5Back) {
     showScreen('screen-4');
   });
 }
-

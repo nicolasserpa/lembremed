@@ -203,10 +203,10 @@ function renderPatientProfile(patientId) {
 
       item.innerHTML = `
         <div style="text-align: left;">
-          <h4 style="font-size: 14px; font-weight: 700; color: var(--color-text-dark);">${med.name}</h4>
-          <p style="font-size: 11px; color: var(--color-text-muted); margin-top: 1px;">${med.dose}</p>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--color-text-dark);">${Components.escapeHTML(med.name)}</h4>
+          <p style="font-size: 11px; color: var(--color-text-muted); margin-top: 1px;">${Components.escapeHTML(med.dose)}</p>
         </div>
-        <span style="font-size: 12px; ${statusStyle}">${statusText}</span>
+        <span style="font-size: 12px; ${statusStyle}">${Components.escapeHTML(statusText)}</span>
       `;
       medsList.appendChild(item);
     });

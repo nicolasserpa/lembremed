@@ -10,7 +10,7 @@ function publishPatientSyncData() {
   if (!patientKey || !appState.patients[patientKey]) return;
   const patient = appState.patients[patientKey];
   if (!patient.lmCode) return;
-  
+
   let syncData = {};
   try {
     syncData = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}');
@@ -41,16 +41,16 @@ window.addEventListener('storage', (e) => {
   if (e.key === SYNC_KEY && e.newValue && appState.user.role === 'caregiver') {
     const syncData = JSON.parse(e.newValue || '{}');
     let updated = false;
-    
+
     Object.entries(syncData).forEach(([lmCode, patientData]) => {
       const matchKey = Object.keys(appState.patients).find(k => appState.patients[k].lmCode === lmCode);
       if (!matchKey) return;
-      
+
       appState.patients[matchKey] = { ...appState.patients[matchKey], ...patientData };
       patientsProfileData[matchKey] = appState.patients[matchKey];
       updated = true;
     });
-    
+
     if (updated) {
       renderCaregiverDashboard();
       const screen11 = document.getElementById('screen-11');
@@ -69,20 +69,20 @@ window.addEventListener('storage', (e) => {
         if (caregiverContactCard) {
           caregiverContactCard.style.display = 'block';
         }
-        
+
         const cgName = e.newValue || 'Contato de Emergência';
         const cgNameEl = document.getElementById('caregiver-contact-name');
         if (cgNameEl) {
           cgNameEl.textContent = cgName;
         }
-        
+
         appState.patients[patientKey].caregiverName = cgName;
-        
+
         // Add real-time link notification in the feed
         if (!appState.patients[patientKey].alerts) {
           appState.patients[patientKey].alerts = [];
         }
-        
+
         const alertExists = appState.patients[patientKey].alerts.some(a => a.type === 'caregiver_linked');
         if (!alertExists) {
           appState.patients[patientKey].alerts.push({
@@ -93,7 +93,7 @@ window.addEventListener('storage', (e) => {
             time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
             class: 'success'
           });
-          
+
           const activeScreen = document.querySelector('.app-screen.active');
           if (activeScreen && activeScreen.id === 'screen-patient-alerts') {
             renderPatientAlerts();
@@ -119,19 +119,19 @@ if (btnLinkByCode && linkCodeInput) {
       digits = digits.substring(2);
     }
     digits = digits.replace(/[^0-9]/g, '').substring(0, 4);
-    
+
     if (digits.length > 0) {
       linkCodeInput.value = 'LM-' + digits;
     } else {
       linkCodeInput.value = '';
     }
   });
-  
+
   btnLinkByCode.addEventListener('click', () => {
     const code = linkCodeInput.value.trim().toUpperCase();
     if (linkErrorEl) linkErrorEl.style.display = 'none';
     if (linkSuccessEl) linkSuccessEl.style.display = 'none';
-    
+
     if (!code.match(/^LM-\d{4}$/)) {
       if (linkErrorEl) {
         linkErrorEl.textContent = 'Formato inválido. Use: LM-1234';
@@ -139,7 +139,7 @@ if (btnLinkByCode && linkCodeInput) {
       }
       return;
     }
-    
+
     let syncData = {};
     try {
       syncData = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}');
@@ -147,7 +147,7 @@ if (btnLinkByCode && linkCodeInput) {
       console.warn('Recovered from malformed sync data in localStorage');
     }
     const patientData = syncData[code];
-    
+
     if (!patientData) {
       if (linkErrorEl) {
         linkErrorEl.textContent = 'Código não encontrado. O paciente precisa estar conectado no outro dispositivo/aba.';
@@ -155,7 +155,7 @@ if (btnLinkByCode && linkCodeInput) {
       }
       return;
     }
-    
+
     const alreadyLinked = Object.values(appState.patients).some(p => p.lmCode === code);
     if (alreadyLinked) {
       if (linkSuccessEl) {
@@ -164,25 +164,25 @@ if (btnLinkByCode && linkCodeInput) {
       }
       return;
     }
-    
+
     const newKey = 'linked_' + code.replace('LM-', '');
     appState.patients[newKey] = {
       ...patientData,
       lmCode: code
     };
     patientsProfileData = appState.patients;
-    
+
     // Notifica o paciente salvando o nome real do cuidador no localStorage em vez de apenas um timestamp
     localStorage.setItem('lembremed_linked_' + code, appState.user.name || 'Cuidador');
-    
+
     if (linkCodeInput) linkCodeInput.value = '';
     if (linkSuccessEl) {
       linkSuccessEl.textContent = `✓ ${patientData.name} vinculado com sucesso em tempo real!`;
       linkSuccessEl.style.display = 'block';
     }
-    
+
     renderCaregiverDashboard();
-    
+
     // Navigate to caregiver dashboard after a short delay
     setTimeout(() => showScreen('screen-7'), 1500);
   });
@@ -194,4 +194,4 @@ window.publishPatientSyncData = publishPatientSyncData;
 // Default initialization in Pitch Mode (Moved here to avoid Temporal Dead Zone errors)
 clearPitchData();
 
-// ==========================================================================
+// ==========================================================================

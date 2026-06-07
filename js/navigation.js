@@ -66,11 +66,11 @@ if (globalNavContainer) {
 
 function updateActiveTabsForScreen(screenId) {
   if (!globalNavContainer || typeof Components === 'undefined') return;
-  
+
   // Determine active tab and role based on screenId
   let activeTab = '';
   let role = appState.user.role; // Default to current role
-  
+
   // CAREGIVER SCREENS (require bottom nav)
   if (screenId === 'screen-7' || screenId === 'screen-11') {
     activeTab = 'pacientes';
@@ -85,7 +85,7 @@ function updateActiveTabsForScreen(screenId) {
     activeTab = 'config';
     role = 'caregiver';
   }
-  
+
   // PATIENT SCREENS (require bottom nav)
   else if (screenId === 'screen-patient-home') {
     activeTab = 'patient-home';
@@ -103,12 +103,12 @@ function updateActiveTabsForScreen(screenId) {
     activeTab = 'patient-settings';
     role = 'patient';
   }
-  
+
   // If the screen corresponds to a nav tab, render the navigation
   if (activeTab) {
     globalNavContainer.innerHTML = Components.getBottomNav(role, activeTab);
     globalNavContainer.style.display = 'block';
-    
+
     // Update app content padding to account for fixed global nav
     const activeScreen = document.getElementById(screenId);
     if (activeScreen) {
@@ -149,12 +149,12 @@ if (btnResetSimulator) {
   if (nameError) nameError.classList.add('d-none');
   const ageError = document.getElementById('age-error-msg');
   if (ageError) ageError.classList.add('d-none');
-  
+
   const searchInputReset = document.getElementById('search-med-input');
   if (searchInputReset) searchInputReset.value = '';
   const dropdownResultsReset = document.querySelector('.dropdown-results');
   if (dropdownResultsReset) dropdownResultsReset.style.display = 'none';
-  
+
   // Reset search and times states
   addedTimes = [];
   const searchPhase = document.getElementById('med-search-phase');
@@ -163,16 +163,16 @@ if (btnResetSimulator) {
     timesPhase.style.display = 'none';
     searchPhase.style.display = 'flex';
   }
-  
+
   // Reset selected roles
   roleCards.forEach(c => c.classList.remove('selected'));
   document.getElementById('role-patient').classList.add('selected');
   document.getElementById('btn-flow-3').removeAttribute('data-next-flow');
-  
+
   // Reset medicine search selections
   searchDropdownItems.forEach(i => i.classList.remove('selected'));
   searchDropdownItems[0].classList.add('selected');
-  
+
   // Reset active switcher role back to "all" (Geral)
   setSidebarSwitcherRole('all', true);
 
@@ -197,7 +197,7 @@ if (btnResetSimulator) {
 
   // Reset patient data cleanly
   activePatientId = null;
-  
+
   // Clear sync data from localStorage
   localStorage.removeItem('lembremed_patient_code');
   localStorage.removeItem('lembremed_sync_patients');
@@ -205,13 +205,13 @@ if (btnResetSimulator) {
   // Hide patient code card
   const codeCard = document.getElementById('patient-sync-code-card');
   if (codeCard) codeCard.style.display = 'none';
-  
+
   initAgendaData();
-  selectedDate = '2026-05-21';
+  selectedDate = new Date().toISOString().split('T')[0];
   renderAgenda();
   renderPatientHomeChecklist();
   renderPatientMedsList();
-  
+
   // Disable high contrast and reset font size on phone container
   const phoneContainer = document.getElementById('phone-container');
   if (phoneContainer) phoneContainer.classList.remove('high-contrast');
@@ -249,17 +249,17 @@ if (btnResetSimulator) {
 function updatePhoneClock() {
   const timeDisplay = document.getElementById('phone-time');
   if (!timeDisplay) return;
-  
+
   const now = new Date();
   let hours = now.getHours();
   let minutes = now.getMinutes();
-  
+
   // Zero padding
   hours = hours < 10 ? '0' + hours : hours;
   minutes = minutes < 10 ? '0' + minutes : minutes;
-  
+
   timeDisplay.textContent = `${hours}:${minutes}`;
-  
+
   // Periodically check for active reminder on minute change
   const activeScreen = document.querySelector('.app-screen.active');
   if (activeScreen && activeScreen.id === 'screen-patient-home') {
@@ -275,4 +275,4 @@ initAgendaData();
 setupCalendarClickListeners();
 renderAgenda();
 
-// ==========================================================================
+// ==========================================================================

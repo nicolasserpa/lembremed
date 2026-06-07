@@ -13,6 +13,11 @@
   <meta property="og:description" content="Simulador interativo mobile-first para agendamento de remédios e acompanhamento de saúde entre pacientes e cuidadores.">
   <meta property="og:image" content="assets/brand/logo.svg">
   
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self';">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="assets/brand/logo.svg" as="image">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -189,7 +194,7 @@
                 
                 <div class="input-group">
                   <label for="reg-gender">Gênero</label>
-                  <select id="reg-gender" class="form-control" style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2364748B%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><polyline points=%226 9 12 15 18 9%22></polyline></svg>'); background-repeat: no-repeat; background-position: right 16px center; background-size: 16px; padding-right: 40px;">
+                  <select id="reg-gender" class="form-control select-custom">
                     <option value="" disabled selected>Selecione seu gênero</option>
                     <option value="feminino">Feminino</option>
                     <option value="masculino">Masculino</option>
@@ -276,14 +281,14 @@
                     <p class="onboarding-text">Cuidar da sua rotina de remédios é cuidar da sua saúde.</p>
                   </div>
                   <div class="onboarding-slide" data-slide="1">
-                    <div class="heart-badge-circle" style="background: linear-gradient(135deg, #10B981, #059669);">
-                      <svg class="icon" viewBox="0 0 24 24" stroke-width="2.5" style="stroke: var(--color-white);"><use href="#icon-bell"/></svg>
+                    <div class="heart-badge-circle bg-success-gradient">
+                      <svg class="icon stroke-white" viewBox="0 0 24 24" stroke-width="2.5"><use href="#icon-bell"/></svg>
                     </div>
                     <p class="onboarding-text">Receba lembretes na hora certa para nunca esquecer seus medicamentos.</p>
                   </div>
                   <div class="onboarding-slide" data-slide="2">
-                    <div class="heart-badge-circle" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
-                      <svg class="icon" viewBox="0 0 24 24" stroke-width="2.5" style="stroke: var(--color-white);"><use href="#icon-users-group"/></svg>
+                    <div class="heart-badge-circle bg-warning-gradient">
+                      <svg class="icon stroke-white" viewBox="0 0 24 24" stroke-width="2.5"><use href="#icon-users-group"/></svg>
                     </div>
                     <p class="onboarding-text">Conecte-se com cuidadores para um acompanhamento mais seguro e completo.</p>
                   </div>
@@ -303,16 +308,16 @@
             <!-- SCREEN 4: ADD MEDICATION WELCOME -->
             <div class="app-screen" id="screen-4">
               <div class="screen-header">
-                <button class="btn-back" id="btn-screen-4-back" style="background: none; border: none; cursor: pointer; color: var(--color-text-dark); display: flex; align-items: center; padding: 4px; font-weight: 700; font-size: 14px;" aria-label="Voltar">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;">
+                <button class="btn-back" id="btn-screen-4-back" aria-label="Voltar">
+                  <svg class="icon-back" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="15 18 9 12 15 6"></polyline>
                   </svg>
                   Voltar
                 </button>
-                <div class="brand-logo" style="margin-right: 16px;"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img" width="120" height="22"></div>
+                <div class="brand-logo mr-16"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img" width="120" height="22"></div>
               </div>
               <div class="screen-content">
-                <h2 class="welcome-title" style="font-size: 22px; margin-top: 8px; margin-bottom: 24px;">Adicione seus medicamentos</h2>
+                <h2 class="welcome-title text-size-22 mt-8 mb-24">Adicione seus medicamentos</h2>
                 
                 <div class="action-card" id="btn-card-search-med">
                   <div class="action-card-header">
@@ -341,19 +346,19 @@
             <!-- SCREEN 5: MEDICINE SEARCH -->
             <div class="app-screen" id="screen-5">
               <div class="screen-header">
-                <button class="btn-back" id="btn-screen-5-back" style="background: none; border: none; cursor: pointer; color: var(--color-text-dark); display: flex; align-items: center; padding: 4px; font-weight: 700; font-size: 14px;" aria-label="Voltar">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;">
+                <button class="btn-back" id="btn-screen-5-back" aria-label="Voltar">
+                  <svg class="icon-back" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="15 18 9 12 15 6"></polyline>
                   </svg>
                   Voltar
                 </button>
-                <div class="brand-logo" style="margin-right: 16px;"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img" width="120" height="22"></div>
+                <div class="brand-logo mr-16"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img" width="120" height="22"></div>
               </div>
-              <div class="screen-content" style="display: flex; flex-direction: column; height: 100%;">
+              <div class="screen-content h-full d-flex flex-col">
                 
                 <!-- Phase 1: Search and Select (med-search-phase) -->
-                <div id="med-search-phase" style="display: flex; flex-direction: column; flex-grow: 1; width: 100%;">
-                  <h2 class="welcome-title" style="font-size: 20px; margin-top: 8px; margin-bottom: 16px;">Adicione seus medicamentos</h2>
+                <div id="med-search-phase" class="flex-grow w-full d-flex flex-col">
+                  <h2 class="welcome-title text-size-20 mt-8 mb-16">Adicione seus medicamentos</h2>
                   
                   <div class="search-wrapper">
                     <!-- Loupe -->
@@ -542,7 +547,7 @@
                 </div>
 
                 <!-- Phase 2: iOS Time Picker (med-times-phase) - Initially Hidden -->
-                <div id="med-times-phase" style="display: none; flex-direction: column; flex-grow: 1; width: 100%;">
+                <div id="med-times-phase" class="d-none flex-grow w-full flex-col">
                   <h2 class="welcome-title" style="font-size: 20px; margin-top: 8px; margin-bottom: 8px;">Definir Horários</h2>
                   <p style="color: var(--color-text-muted); font-size: 13px; margin-bottom: 16px;">Selecione os horários diários para tomar seu remédio.</p>
                   
@@ -555,6 +560,18 @@
                       <h4 id="preview-med-name">Remédio</h4>
                       <p id="preview-med-dose">Uso oral</p>
                     </div>
+                  </div>
+
+                  <!-- Weekday Selector -->
+                  <div style="font-size: 11px; font-weight: 800; color: var(--color-text-muted); text-transform: uppercase; margin-bottom: 8px;">Dias da Semana:</div>
+                  <div class="weekday-selector-container" id="weekday-selector">
+                    <div class="weekday-chip selected" data-day="0">Dom</div>
+                    <div class="weekday-chip selected" data-day="1">Seg</div>
+                    <div class="weekday-chip selected" data-day="2">Ter</div>
+                    <div class="weekday-chip selected" data-day="3">Qua</div>
+                    <div class="weekday-chip selected" data-day="4">Qui</div>
+                    <div class="weekday-chip selected" data-day="5">Sex</div>
+                    <div class="weekday-chip selected" data-day="6">Sáb</div>
                   </div>
 
                   <!-- iOS-Style Double Wheel Time Picker -->
@@ -630,41 +647,7 @@
 
                 <!-- 7-Day Calendar Strip -->
                 <div class="calendar-strip" id="agenda-calendar-strip">
-                  <div class="calendar-day" data-date="2026-05-15">
-                    <span class="day-name">Sex</span>
-                    <span class="day-num">15</span>
-                    <div class="day-status-icon"></div>
-                  </div>
-                  <div class="calendar-day" data-date="2026-05-16">
-                    <span class="day-name">Sáb</span>
-                    <span class="day-num">16</span>
-                    <div class="day-status-icon"></div>
-                  </div>
-                  <div class="calendar-day" data-date="2026-05-17">
-                    <span class="day-name">Dom</span>
-                    <span class="day-num">17</span>
-                    <div class="day-status-icon"></div>
-                  </div>
-                  <div class="calendar-day" data-date="2026-05-18">
-                    <span class="day-name">Seg</span>
-                    <span class="day-num">18</span>
-                    <div class="day-status-icon"></div>
-                  </div>
-                  <div class="calendar-day" data-date="2026-05-19">
-                    <span class="day-name">Ter</span>
-                    <span class="day-num">19</span>
-                    <div class="day-status-icon"></div>
-                  </div>
-                  <div class="calendar-day" data-date="2026-05-20">
-                    <span class="day-name">Qua</span>
-                    <span class="day-num">20</span>
-                    <div class="day-status-icon"></div>
-                  </div>
-                  <div class="calendar-day selected" data-date="2026-05-21">
-                    <span class="day-name">Qui</span>
-                    <span class="day-num">21</span>
-                    <div class="day-status-icon"></div>
-                  </div>
+                  <!-- Will be populated dynamically in JS -->
                 </div>
 
                 <!-- Selected Day Title Header -->
@@ -687,17 +670,17 @@
               <div class="screen-header">
                 <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img" width="120" height="22"></div>
               </div>
-              <div class="screen-content" style="padding-bottom: 0;">
+              <div class="screen-content pb-0">
                 <div class="section-title-bar mt-8">
                   <h3>Meus pacientes</h3>
-                  <span id="caregiver-patients-count" style="font-size: 12px; font-weight: 700; color: var(--color-primary);">0 pacientes</span>
+                  <span id="caregiver-patients-count" class="text-size-12 font-bold text-primary">0 pacientes</span>
                 </div>
                 
                 <div class="patients-list" id="caregiver-patients-list">
                   <!-- Pacientes renderizados dinamicamente pelo JS -->
                 </div>
                 
-                <button id="btn-add-patient-nav" class="btn-primary" style="background-color: transparent; border: 2px dashed var(--color-primary); color: var(--color-primary); box-shadow: none; padding: 12px; font-size: 14px; margin-bottom: 16px;">
+                <button id="btn-add-patient-nav" class="btn-primary btn-add-patient-dashed">
                   + Adicionar Paciente
                 </button>
               </div>
@@ -708,14 +691,14 @@
             <!-- SCREEN: ADD PATIENT FORM (Cuidador) -->
             <div class="app-screen" id="screen-add-patient">
               <div class="screen-header">
-                <button class="btn-back" id="btn-add-patient-back" style="background: none; border: none; cursor: pointer; color: var(--color-text-dark); display: flex; align-items: center; padding: 4px; font-weight: 700; font-size: 14px;" aria-label="Voltar para o painel do cuidador">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><polyline points="15 18 9 12 15 6"/></svg>
+                <button class="btn-back" id="btn-add-patient-back" aria-label="Voltar para o painel do cuidador">
+                  <svg class="mr-2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                   Voltar
                 </button>
               </div>
               <div class="screen-content">
-                <h2 class="welcome-title" style="font-size: 22px; margin-top: 8px; margin-bottom: 8px;">Adicionar Paciente</h2>
-                <p style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 24px;">Preencha os dados do paciente que você deseja gerenciar.</p>
+                <h2 class="welcome-title text-size-22 mt-8 mb-8">Adicionar Paciente</h2>
+                <p class="text-size-13 text-muted mb-24">Preencha os dados do paciente que você deseja gerenciar.</p>
                 
                 <div class="input-group">
                   <label for="add-patient-name">Nome completo <span class="required text-danger" aria-hidden="true">*</span></label>
@@ -738,34 +721,34 @@
                   <input type="tel" id="add-patient-phone" name="patientphone" autocomplete="tel" inputmode="numeric" class="form-control" placeholder="(00) 00000-0000">
                 </div>
                 
-                <div style="margin-top: auto; display: flex; flex-direction: column; gap: 12px;">
+                <div class="mt-auto d-flex flex-col gap-12">
                   <button class="btn-primary" id="btn-save-patient">Salvar Paciente</button>
                   
                   <!-- OR divider -->
-                  <div style="display: flex; align-items: center; gap: 12px; padding: 4px 0;">
-                    <div style="flex: 1; height: 1px; background-color: var(--color-border);"></div>
-                    <span style="font-size: 12px; font-weight: 700; color: var(--color-text-light);">OU</span>
-                    <div style="flex: 1; height: 1px; background-color: var(--color-border);"></div>
+                  <div class="divider-container">
+                    <div class="divider-line"></div>
+                    <span class="divider-text">OU</span>
+                    <div class="divider-line"></div>
                   </div>
 
                   <!-- Link by unique code -->
-                  <div style="background-color: var(--color-primary-light); border: 1.5px solid var(--color-primary); border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; gap: 12px;">
-                    <div style="display: flex; align-items: center; gap: 10px; color: var(--color-text-dark);">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-primary); flex-shrink: 0;">
+                  <div class="link-code-container">
+                    <div class="link-code-header">
+                      <svg class="text-primary flex-shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
                         <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
                       </svg>
                       <div>
-                        <p style="font-size: 13px; font-weight: 700; color: var(--color-text-dark); margin: 0;">Vincular Paciente Existente</p>
-                        <p style="font-size: 11px; color: var(--color-text-muted); margin: 2px 0 0 0;">Use o código LM exibido no app do paciente</p>
+                        <p class="link-code-title">Vincular Paciente Existente</p>
+                        <p class="link-code-subtitle">Use o código LM exibido no app do paciente</p>
                       </div>
                     </div>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                      <input type="text" id="link-patient-code" class="form-control" placeholder="Ex: LM-1234" maxlength="7" style="font-family: monospace; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; padding: 12px 14px; text-align: center;">
-                      <button id="btn-link-patient-by-code" class="btn-primary" style="flex-shrink: 0; width: auto; padding: 12px 16px; font-size: 13px;">Vincular</button>
+                    <div class="d-flex gap-8 align-center">
+                      <input type="text" id="link-patient-code" class="form-control input-code" placeholder="Ex: LM-1234" maxlength="7">
+                      <button id="btn-link-patient-by-code" class="btn-primary btn-link-submit">Vincular</button>
                     </div>
-                    <p id="link-patient-error" style="font-size: 12px; color: var(--color-danger-text); font-weight: 600; display: none; text-align: center;"></p>
-                    <p id="link-patient-success" style="font-size: 12px; color: var(--color-success-text); font-weight: 600; display: none; text-align: center;"></p>
+                    <p id="link-patient-error" class="link-status-msg text-danger"></p>
+                    <p id="link-patient-success" class="link-status-msg text-success"></p>
                   </div>
                 </div>
               </div>
@@ -777,7 +760,7 @@
               <div class="screen-header">
                 <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img" width="120" height="22"></div>
               </div>
-              <div class="screen-content" style="padding-bottom: 0;">
+              <div class="screen-content pb-0">
                 <div class="patient-profile-header">
                   <div class="patient-profile-avatar" id="agenda-profile-avatar">--</div>
                   <div class="patient-profile-details">
@@ -786,7 +769,7 @@
                   </div>
                 </div>
                 
-                <div class="info-bubble" style="margin-bottom: 16px; padding: 10px 14px;">
+                <div class="info-bubble mb-16 py-10 px-14">
                   Aqui estão os medicamentos e horários cadastrados para ela.
                 </div>
                 
@@ -798,7 +781,7 @@
                   <!-- Dynamic Meds Checklist will be populated here -->
                 </div>
                 
-                <button id="btn-caregiver-add-med" class="btn-primary" style="padding: 12px; font-size: 14px; margin-bottom: 16px;">
+                <button id="btn-caregiver-add-med" class="btn-primary btn-add-med-compact">
                   + Adicionar medicamento
                 </button>
               </div>
@@ -811,10 +794,10 @@
               <div class="screen-header">
                 <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img" width="120" height="22"></div>
               </div>
-              <div class="screen-content" style="padding-bottom: 0;">
-                <h2 class="welcome-title" style="font-size: 22px; margin-top: 8px; margin-bottom: 8px;">Alertas</h2>
+              <div class="screen-content pb-0">
+                <h2 class="welcome-title text-size-22 mt-8 mb-8">Alertas</h2>
                 
-                <div class="info-bubble" style="margin-bottom: 16px; padding: 10px 14px;">
+                <div class="info-bubble mb-16 py-10 px-14">
                   Fique atento aos alertas e notificações dos pacientes monitorados.
                 </div>
                 
@@ -831,68 +814,68 @@
               <div class="screen-header">
                 <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img" width="120" height="22"></div>
               </div>
-              <div class="screen-content" style="padding-bottom: 0;">
-                <h2 class="welcome-title" style="font-size: 22px; margin-top: 8px; margin-bottom: 16px;">Configurações</h2>
+              <div class="screen-content pb-0">
+                <h2 class="welcome-title text-size-22 mt-8 mb-16">Configurações</h2>
                 
-                <div class="settings-list" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
-                  <div class="setting-item" id="btn-cg-account" role="button" tabindex="0" aria-label="Editar minha conta" style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; background-color: var(--color-white); cursor: pointer;">
-                    <div style="display: flex; align-items: center; gap: 12px; color: var(--color-text-dark); font-weight: 600; font-size: 14px;">
-                      <svg class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" style="color: var(--color-primary);"><use href="#icon-user-profile"/></svg>
+                <div class="settings-list settings-list-gap mb-24">
+                  <div class="setting-item setting-item-card" id="btn-cg-account" role="button" tabindex="0" aria-label="Editar minha conta">
+                    <div class="setting-item-content text-size-14">
+                      <svg class="icon text-primary" width="20" height="20" viewBox="0 0 24 24" stroke-width="2"><use href="#icon-user-profile"/></svg>
                       Minha Conta
                     </div>
-                    <svg class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2.5" style="color: var(--color-text-light);"><use href="#icon-chevron-right"/></svg>
+                    <svg class="icon text-light" width="16" height="16" viewBox="0 0 24 24" stroke-width="2.5"><use href="#icon-chevron-right"/></svg>
                   </div>
                   
-                  <div class="setting-item" id="btn-cg-notifications" role="button" tabindex="0" aria-label="Configurar notificações" style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; background-color: var(--color-white); cursor: pointer;">
-                    <div style="display: flex; align-items: center; gap: 12px; color: var(--color-text-dark); font-weight: 600; font-size: 14px;">
-                      <svg class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" style="color: var(--color-primary);"><use href="#icon-bell-alt"/></svg>
+                  <div class="setting-item setting-item-card" id="btn-cg-notifications" role="button" tabindex="0" aria-label="Configurar notificações">
+                    <div class="setting-item-content text-size-14">
+                      <svg class="icon text-primary" width="20" height="20" viewBox="0 0 24 24" stroke-width="2"><use href="#icon-bell-alt"/></svg>
                       Notificações
                     </div>
-                    <span id="cg-notif-status" style="font-size: 12px; font-weight: 700; color: var(--color-success-text);">Ativadas</span>
+                    <span id="cg-notif-status" class="text-size-12 font-bold text-success">Ativadas</span>
                   </div>
 
-                  <div class="setting-item" id="btn-cg-about" role="button" tabindex="0" aria-label="Sobre o LembreMed" style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; background-color: var(--color-white); cursor: pointer;">
-                    <div style="display: flex; align-items: center; gap: 12px; color: var(--color-text-dark); font-weight: 600; font-size: 14px;">
-                      <svg class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" style="color: var(--color-primary);"><use href="#icon-help-circle"/></svg>
+                  <div class="setting-item setting-item-card" id="btn-cg-about" role="button" tabindex="0" aria-label="Sobre o LembreMed">
+                    <div class="setting-item-content text-size-14">
+                      <svg class="icon text-primary" width="20" height="20" viewBox="0 0 24 24" stroke-width="2"><use href="#icon-help-circle"/></svg>
                       Sobre o App
                     </div>
-                    <svg class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2.5" style="color: var(--color-text-light);"><use href="#icon-chevron-right"/></svg>
+                    <svg class="icon text-light" width="16" height="16" viewBox="0 0 24 24" stroke-width="2.5"><use href="#icon-chevron-right"/></svg>
                   </div>
                 </div>
 
                 <!-- Caregiver Accessibility Settings -->
-                <div class="settings-list" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
-                  <p style="font-size: 11px; font-weight: 800; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Acessibilidade</p>
+                <div class="settings-list settings-list-gap mb-24">
+                  <p class="settings-group-label mb-4">Acessibilidade</p>
 
                   <!-- High Contrast Toggle (Caregiver) -->
-                  <div class="setting-item" id="setting-cg-high-contrast" role="button" tabindex="0" aria-label="Alternar Contraste Alto" style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; background-color: var(--color-white); cursor: pointer;">
-                    <div style="display: flex; align-items: center; gap: 12px; color: var(--color-text-dark); font-weight: 600; font-size: 14px;">
-                      <svg class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" style="color: var(--color-primary);"><use href="#icon-contrast"/></svg>
+                  <div class="setting-item setting-item-card" id="setting-cg-high-contrast" role="button" tabindex="0" aria-label="Alternar Contraste Alto">
+                    <div class="setting-item-content text-size-14">
+                      <svg class="icon text-primary" width="20" height="20" viewBox="0 0 24 24" stroke-width="2"><use href="#icon-contrast"/></svg>
                       Contraste Alto
                     </div>
-                    <div id="cg-contrast-toggle-pill" style="width: 44px; height: 24px; background-color: var(--color-border); border-radius: 12px; position: relative;">
-                      <div id="cg-contrast-toggle-thumb" style="width: 20px; height: 20px; background-color: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; box-shadow: var(--shadow-sm);"></div>
+                    <div id="cg-contrast-toggle-pill" class="toggle-pill">
+                      <div id="cg-contrast-toggle-thumb" class="toggle-thumb"></div>
                     </div>
                   </div>
 
                   <!-- Font Size (Caregiver) -->
-                  <div class="setting-item" id="setting-cg-font-size" role="button" tabindex="0" aria-label="Ajustar tamanho da letra" style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; background-color: var(--color-white); cursor: pointer;">
-                    <div style="display: flex; align-items: center; gap: 12px; color: var(--color-text-dark); font-weight: 600; font-size: 14px;">
-                      <span style="font-size: 16px; font-weight: 800; color: var(--color-primary); width: 20px; text-align: center;">A+</span>
+                  <div class="setting-item setting-item-card" id="setting-cg-font-size" role="button" tabindex="0" aria-label="Ajustar tamanho da letra">
+                    <div class="setting-item-content text-size-14">
+                      <span class="font-size-icon text-primary">A+</span>
                       Tamanho da Letra
                     </div>
-                    <span id="cg-font-size-status" style="font-size: 12px; font-weight: 700; color: var(--color-text-muted);">Médio</span>
+                    <span id="cg-font-size-status" class="text-size-12 font-bold text-muted">Médio</span>
                   </div>
                 </div>
 
-                <div class="settings-list" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
-                  <div class="setting-item" id="btn-cg-logout" role="button" tabindex="0" aria-label="Sair da conta" style="border: 1px solid var(--color-danger-bg); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; background-color: var(--color-white); cursor: pointer;">
+                <div class="settings-list settings-list-gap mb-24">
+                  <div class="setting-item setting-item-logout-card" id="btn-cg-logout" role="button" tabindex="0" aria-label="Sair da conta">
 
-                    <div style="display: flex; align-items: center; gap: 12px; color: var(--color-danger-text); font-weight: 600; font-size: 14px;">
-                      <svg class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" class="text-danger"><use href="#icon-logout"/></svg>
+                    <div class="setting-item-content-danger text-size-14">
+                      <svg class="icon text-danger" width="20" height="20" viewBox="0 0 24 24" stroke-width="2"><use href="#icon-logout"/></svg>
                       Sair
                     </div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-danger"><polyline points="9 18 15 12 9 6"/></svg>
+                    <svg class="text-danger" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
               </div>
@@ -903,35 +886,35 @@
             <!-- SCREEN 11: PERFIL DO PACIENTE (DETALHADO) -->
             <div class="app-screen" id="screen-11">
               <div class="screen-header">
-                <button class="btn-back" id="btn-profile-back" style="background: none; border: none; cursor: pointer; color: var(--color-text-dark); display: flex; align-items: center; padding: 4px; font-weight: 700; font-size: 14px;" aria-label="Voltar para a tela anterior">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;">
+                <button class="btn-back" id="btn-profile-back" aria-label="Voltar para a tela anterior">
+                  <svg class="mr-2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="15 18 9 12 15 6"></polyline>
                   </svg>
                   Voltar
                 </button>
-                <div class="brand-logo" style="margin-right: 16px;"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img"></div>
+                <div class="brand-logo mr-16"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img"></div>
               </div>
-              <div class="screen-content" style="padding-bottom: 24px;">
+              <div class="screen-content pb-24">
                 
                 <!-- Patient Profile Card -->
                 <div class="patient-profile-card">
                   <div class="patient-profile-avatar-large" id="profile-avatar">--</div>
-                  <h2 id="profile-name" style="font-size: 20px; font-weight: 800; color: var(--color-text-dark); margin-top: 4px;">Nenhum Paciente</h2>
-                  <p id="profile-age" style="font-size: 13px; color: var(--color-text-muted);">Idade • Status</p>
-                  <span class="patient-status-badge taken" id="profile-status-badge" style="margin-top: 4px; display: none;">Em Dia</span>
+                  <h2 id="profile-name" class="text-size-20 font-extrabold text-dark mt-4">Nenhum Paciente</h2>
+                  <p id="profile-age" class="text-size-13 text-muted">Idade • Status</p>
+                  <span class="patient-status-badge taken mt-4 d-none" id="profile-status-badge">Em Dia</span>
                 </div>
                 
                 <!-- Monthly Adherence Card -->
                 <div class="adherence-card-secondary">
                   <div class="adherence-info">
-                    <h4 style="font-size: 11px; font-weight: 800; color: var(--color-text-muted); text-transform: uppercase;">Aderência do Mês</h4>
-                    <p id="profile-adherence-label" style="font-size: 13px; font-weight: 700; color: var(--color-text-dark); margin-top: 2px;">94% das doses tomadas</p>
+                    <h4 class="text-size-11 font-extrabold text-muted text-uppercase">Aderência do Mês</h4>
+                    <p id="profile-adherence-label" class="text-size-13 font-bold text-dark mt-2">94% das doses tomadas</p>
                   </div>
-                  <div class="adherence-progress-mini" style="width: 44px; height: 44px;">
+                  <div class="adherence-progress-mini-fixed">
                     <svg viewBox="0 0 36 36" class="circular-chart">
                       <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#E2E8F0" stroke-width="3.5"></path>
                       <path class="circle" id="profile-adherence-circle" stroke-dasharray="94, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--color-primary)" stroke-width="3.5"></path>
-                      <text x="18" y="20.35" class="percentage" id="profile-adherence-percentage" text-anchor="middle" style="font-size: 9px; font-weight: 800; fill: var(--color-text-dark);">94%</text>
+                      <text x="18" y="20.35" class="percentage percentage-mini" id="profile-adherence-percentage" text-anchor="middle">94%</text>
                     </svg>
                   </div>
                 </div>
@@ -944,28 +927,28 @@
                 
                 <!-- History Feed Section -->
                 <h3 class="profile-group-title">Histórico & Alertas</h3>
-                <div class="alerts-feed" id="profile-alerts-list" style="margin-bottom: 0;">
+                <div class="alerts-feed mb-0" id="profile-alerts-list">
                   <!-- Dynamic Alerts -->
                 </div>
                 
                 <!-- Notes Feed Section -->
                 <h3 class="profile-group-title">Anotações do Cuidador</h3>
-                <div class="notes-feed" id="profile-notes-feed" class="mb-12">
+                <div class="notes-feed mb-12" id="profile-notes-feed">
                   <!-- Dynamic Notes -->
                 </div>
                 
                 <!-- Add Note Form -->
                 <div class="add-note-form mb-20">
-                  <input type="text" id="profile-note-input" placeholder="Adicionar observação..." aria-label="Nova anotação de cuidados" style="border: 1.5px solid var(--color-border); border-radius: var(--radius-md); padding: 10px; font-size: 13px;">
-                  <button id="btn-submit-note" style="background-color: var(--color-primary); border: none; color: white; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; transition: background-color 0.2s ease;" aria-label="Salvar anotação">Enviar</button>
+                  <input type="text" id="profile-note-input" placeholder="Adicionar observação..." aria-label="Nova anotação de cuidados" class="note-input">
+                  <button id="btn-submit-note" class="btn-note-submit" aria-label="Salvar anotação">Enviar</button>
                 </div>
                 
                 <!-- Primary Actions -->
                 <div class="profile-actions d-flex flex-col gap-8">
-                  <button class="btn-primary" id="btn-profile-view-agenda" style="padding: 14px; font-size: 14px;">
+                  <button class="btn-primary btn-view-agenda-profile" id="btn-profile-view-agenda">
                     Ver Agenda Diária
                   </button>
-                  <button id="btn-profile-call-contact" style="width: 100%; border: 2px solid var(--color-primary); background: transparent; color: var(--color-primary); padding: 12px; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 0.2s ease;">
+                  <button id="btn-profile-call-contact" class="btn-call-profile">
                     <svg class="icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="2.5"><use href="#icon-phone"/></svg>
                     Ligar para Contato
                   </button>
@@ -981,7 +964,7 @@
               <div class="screen-header">
                 <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img" width="120" height="22"></div>
               </div>
-              <div class="screen-content" style="padding-bottom: 0;">
+              <div class="screen-content pb-0">
                 <div class="patient-welcome-card">
                   <h2 id="patient-home-greeting">Olá!</h2>
                   <p>Hoje é <strong>21 de maio</strong>. Você tem <span id="patient-home-summary-count">0 de 4</span> medicamentos tomados.</p>
@@ -992,7 +975,7 @@
                 </div>
                 
                 <!-- Dynamic patient meds checklist -->
-                <div class="meds-checklist" id="patient-home-checklist" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                <div class="meds-checklist meds-checklist-scrollable" id="patient-home-checklist">
                   <!-- Dynamic checklists will be populated by JS -->
                 </div>
                 
@@ -1007,15 +990,15 @@
               <div class="screen-header">
                 <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img" width="120" height="22"></div>
               </div>
-              <div class="screen-content" style="padding-bottom: 0;">
-                <h2 class="welcome-title" style="font-size: 22px; margin-top: 8px; margin-bottom: 12px;">Meus Remédios</h2>
-                <p style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 20px;">Estes são os medicamentos ativos na sua prescrição atual.</p>
+              <div class="screen-content pb-0">
+                <h2 class="welcome-title text-size-22 mt-8 mb-12">Meus Remédios</h2>
+                <p class="text-size-13 text-muted mb-20">Estes são os medicamentos ativos na sua prescrição atual.</p>
                 
                 <div class="patient-meds-list" id="patient-meds-list-container">
                   <!-- Will be populated dynamically by JS -->
                 </div>
                 
-                <button class="btn-primary" id="btn-patient-add-med" style="margin-top: auto; margin-bottom: 24px; padding: 15px;">
+                <button class="btn-primary btn-add-med-patient" id="btn-patient-add-med">
                   + Adicionar Medicamento
                 </button>
               </div>
@@ -1028,11 +1011,11 @@
               <div class="screen-header">
                 <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img" width="120" height="22"></div>
               </div>
-              <div class="screen-content" style="padding-bottom: 0;">
-                <h2 class="welcome-title" style="font-size: 22px; margin-top: 8px; margin-bottom: 12px;">Seus Alertas</h2>
-                <p style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 20px;">Mensagens e lembretes importantes para você.</p>
+              <div class="screen-content pb-0">
+                <h2 class="welcome-title text-size-22 mt-8 mb-12">Seus Alertas</h2>
+                <p class="text-size-13 text-muted mb-20">Mensagens e lembretes importantes para você.</p>
                 
-                <div class="alerts-feed" id="patient-alerts-feed" style="margin-bottom: 0;">
+                <div class="alerts-feed mb-0" id="patient-alerts-feed">
                   <!-- Alerts will be populated dynamically by JS -->
                 </div>
               </div>
@@ -1045,49 +1028,49 @@
               <div class="screen-header">
                 <div class="brand-logo"><img src="assets/brand/logo.svg" alt="LembreMed" class="logo-img" width="120" height="22"></div>
               </div>
-              <div class="screen-content" style="padding-bottom: 0;">
-                <h2 class="welcome-title" style="font-size: 22px; margin-top: 8px; margin-bottom: 16px;">Configurações</h2>
+              <div class="screen-content pb-0">
+                <h2 class="welcome-title text-size-22 mt-8 mb-16">Configurações</h2>
                 
-                <div class="settings-list" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                <div class="settings-list settings-list-gap mb-20">
                   <!-- High Contrast Toggle (Accessible design) -->
-                  <div class="setting-item" id="setting-high-contrast" role="button" tabindex="0" aria-label="Alternar Contraste Alto" style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; background-color: var(--color-white); cursor: pointer;">
-                    <div style="display: flex; align-items: center; gap: 12px; color: var(--color-text-dark); font-weight: 600; font-size: 14px;">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-primary);">
+                  <div class="setting-item setting-item-card" id="setting-high-contrast" role="button" tabindex="0" aria-label="Alternar Contraste Alto">
+                    <div class="setting-item-content text-size-14">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                       </svg>
                       Contraste Alto
                     </div>
-                    <div style="width: 44px; height: 24px; background-color: var(--color-border); border-radius: 12px; position: relative;">
-                      <div style="width: 20px; height: 20px; background-color: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; box-shadow: var(--shadow-sm);"></div>
+                    <div class="toggle-pill">
+                      <div class="toggle-thumb"></div>
                     </div>
                   </div>
                   
                   <!-- Font size selector -->
-                  <div class="setting-item" id="setting-font-size" role="button" tabindex="0" aria-label="Ajustar tamanho da letra" style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; background-color: var(--color-white); cursor: pointer;">
-                    <div style="display: flex; align-items: center; gap: 12px; color: var(--color-text-dark); font-weight: 600; font-size: 14px;">
-                      <span style="font-size: 16px; font-weight: 800; color: var(--color-primary); width: 20px; text-align: center;">A+</span>
+                  <div class="setting-item setting-item-card" id="setting-font-size" role="button" tabindex="0" aria-label="Ajustar tamanho da letra">
+                    <div class="setting-item-content text-size-14">
+                      <span class="font-size-icon text-primary">A+</span>
                       Tamanho da Letra
                     </div>
-                    <span id="font-size-status" style="font-size: 12px; font-weight: 700; color: var(--color-text-muted);">Médio</span>
+                    <span id="font-size-status" class="text-size-12 font-bold text-muted">Médio</span>
                   </div>
                 </div>
                 
                 <!-- Sobre o App -->
-                <div class="settings-list" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
-                  <div class="setting-item" id="btn-patient-about" role="button" tabindex="0" aria-label="Sobre o LembreMed" style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; background-color: var(--color-white); cursor: pointer;">
-                    <div style="display: flex; align-items: center; gap: 12px; color: var(--color-text-dark); font-weight: 600; font-size: 14px;">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-primary);">
+                <div class="settings-list settings-list-gap mb-20">
+                  <div class="setting-item setting-item-card" id="btn-patient-about" role="button" tabindex="0" aria-label="Sobre o LembreMed">
+                    <div class="setting-item-content text-size-14">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
                         <line x1="12" y1="17" x2="12.01" y2="17"/>
                       </svg>
                       Sobre o App
                     </div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-text-light);"><polyline points="9 18 15 12 9 6"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-light"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
-                  <div class="setting-item" id="btn-patient-logout" role="button" tabindex="0" aria-label="Sair da conta" style="border: 1px solid var(--color-danger-bg); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; background-color: var(--color-white); cursor: pointer;">
-                    <div style="display: flex; align-items: center; gap: 12px; color: var(--color-danger-text); font-weight: 600; font-size: 14px;">
+                  <div class="setting-item setting-item-logout-card" id="btn-patient-logout" role="button" tabindex="0" aria-label="Sair da conta">
+                    <div class="setting-item-content-danger text-size-14">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-danger">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                         <polyline points="16 17 21 12 16 7"/>
@@ -1100,14 +1083,14 @@
                 </div>
                 
                 <!-- Patient Unique Code for Caregiver Linking -->
-                <div id="patient-sync-code-card" style="background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; color: white; text-align: center; display: none;">
-                  <p style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85; margin-bottom: 8px;">Meu Código de Paciente</p>
-                  <div id="patient-lm-code" style="font-family: monospace; font-size: 32px; font-weight: 800; letter-spacing: 4px; margin-bottom: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">LM-????</div>
-                  <p style="font-size: 12px; opacity: 0.8; line-height: 1.4;">Compartilhe este código com seu cuidador para que ele possa te vincular em tempo real.</p>
+                <div id="patient-sync-code-card" class="patient-code-card d-none">
+                  <p class="patient-code-label">Meu Código de Paciente</p>
+                  <div id="patient-lm-code" class="patient-code-value">LM-????</div>
+                  <p class="patient-code-desc">Compartilhe este código com seu cuidador para que ele possa te vincular em tempo real.</p>
                 </div>
 
                 <!-- Caregiver emergency contact -->
-                <div class="caregiver-contact-card" id="caregiver-contact-card" style="margin-bottom: 24px; display: none;">
+                <div class="caregiver-contact-card mb-24 d-none" id="caregiver-contact-card">
                   <div class="caregiver-contact-header">
                     <div class="caregiver-contact-avatar text-size-20">📞</div>
                     <div class="caregiver-contact-info">
@@ -1132,16 +1115,16 @@
           <!-- About App Modal -->
           <div class="custom-confirm-modal" id="about-modal" role="dialog" aria-modal="true" aria-labelledby="about-modal-title">
             <div class="confirm-modal-content">
-              <div class="confirm-modal-icon" style="background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));">
+              <div class="confirm-modal-icon bg-primary-gradient">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
                   <path d="M12 5v14M5 12h14" stroke-width="2"/>
                 </svg>
               </div>
               <h4 id="about-modal-title">LembreMed</h4>
-              <p style="font-size: 13px; color: var(--color-text-muted); line-height: 1.5;">Versão 1.0.0<br>Protótipo Interativo — Projeto A3 IHC/UX<br><br>Gerencie seus medicamentos de forma segura e nunca mais esqueça uma dose.</p>
+              <p class="text-size-13 text-muted h-1-5">Versão 1.0.0<br>Protótipo Interativo — Projeto A3 IHC/UX<br><br>Gerencie seus medicamentos de forma segura e nunca mais esqueça uma dose.</p>
               <div class="confirm-modal-buttons">
-                <button class="btn-confirm-approve" id="btn-about-close" style="flex: 1;">Fechar</button>
+                <button class="btn-confirm-approve flex-1" id="btn-about-close">Fechar</button>
               </div>
             </div>
           </div>
@@ -1166,8 +1149,8 @@
           <div class="bottom-sheet-overlay" id="med-bottom-sheet">
             <div class="bottom-sheet-content">
               <div class="bottom-sheet-handle"></div>
-              <h4 id="bottom-sheet-med-name" style="font-size: 16px; font-weight: 800; color: var(--color-text-dark); margin-bottom: 4px;">Losartana</h4>
-              <p id="bottom-sheet-med-dose" style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 20px;">50mg • Diário</p>
+              <h4 id="bottom-sheet-med-name" class="text-size-16 font-extrabold text-dark mb-4">Losartana</h4>
+              <p id="bottom-sheet-med-dose" class="text-size-13 text-muted mb-20">50mg • Diário</p>
               <button class="bottom-sheet-action" id="btn-edit-med-time">
                 <svg class="icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="2"><use href="#icon-clock"/></svg>
                 Alterar Horário
@@ -1226,23 +1209,23 @@
 
   <!-- Subtle floating reset button for presentation pitch convenience -->
   <button id="btn-reset-simulator" class="floating-reset-btn" aria-label="Reiniciar Protótipo" title="Reiniciar Protótipo">
-    <svg class="icon" viewBox="0 0 24 24" stroke-width="2.5" style="width: 20px; height: 20px;"><use href="#icon-refresh"/></svg>
+    <svg class="icon w-20 h-20" viewBox="0 0 24 24" stroke-width="2.5"><use href="#icon-refresh"/></svg>
   </button>
 
   <!-- Scripts Modulares Fatiados -->
-  <script src="js/components.js"></script>
-  <script src="js/validation.js"></script>
-  <script src="js/agenda_logic.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/router.js"></script>
-  <script src="js/registration.js"></script>
-  <script src="js/medSearch.js"></script>
-  <script src="js/timePicker.js"></script>
-  <script src="js/caregiver.js"></script>
-  <script src="js/patient.js"></script>
-  <script src="js/navigation.js"></script>
-  <script src="js/alerts.js"></script>
-  <script src="js/emergency.js"></script>
-  <script src="js/shortcuts.js"></script>
+  <script defer src="js/components.js"></script>
+  <script defer src="js/validation.js"></script>
+  <script defer src="js/agenda_logic.js"></script>
+  <script defer src="js/state.js"></script>
+  <script defer src="js/router.js"></script>
+  <script defer src="js/registration.js"></script>
+  <script defer src="js/medSearch.js"></script>
+  <script defer src="js/timePicker.js"></script>
+  <script defer src="js/caregiver.js"></script>
+  <script defer src="js/patient.js"></script>
+  <script defer src="js/navigation.js"></script>
+  <script defer src="js/alerts.js"></script>
+  <script defer src="js/emergency.js"></script>
+  <script defer src="js/shortcuts.js"></script>
 </body>
 </html>
