@@ -59,7 +59,8 @@ if (btnSavePatient) {
       adherence: 100,
       meds: [],
       alerts: [],
-      notes: []
+      notes: [],
+      history: []
     };
 
     // Limpa os campos
@@ -133,96 +134,153 @@ function renderPatientAlerts() {
   if (!patient) {
     feed.innerHTML = `
       <div class="empty-state" style="text-align: center; padding: 32px 16px; color: var(--color-text-light);">
-        <p>Você não tem alertas pendentes.</p>
+        <p>Você não tem histórico ou alertas no momento.</p>
       </div>
     `;
     return;
   }
 
-  let hasAlerts = false;
+  // Create a combined log of alerts and medication actions
+  let historyLogs = [];
 
-  // 1. Pending Medications Alerts (Critical/System)
-  const pendingMeds = patient.meds.filter(m => m.status === 'pendente' || m.status === 'atrasado');
-  if (pendingMeds.length > 0) {
-    hasAlerts = true;
-    const item = document.createElement('div');
-    item.className = 'alert-item danger';
-    item.style.cursor = 'default';
-    item.style.transform = 'none';
-    item.style.boxShadow = 'none';
-    item.innerHTML = `
-      <div class="alert-item-content">
-        <svg class="alert-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <octagon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/>
-          <line x1="12" y1="8" x2="12" y2="12"/>
-          <line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <div class="alert-item-text">
-          <strong>Atenção:</strong> Você tem ${pendingMeds.length} medicamento(s) pendente(s) hoje.
-        </div>
-      </div>
-    `;
-    feed.appendChild(item);
-  }
-
-  // 2. Dynamic Alerts (Dismissable Notifications with 'x' button)
+  // 1. Add Dynamic Alerts
   if (patient.alerts && patient.alerts.length > 0) {
     patient.alerts.forEach(alert => {
-      hasAlerts = true;
-      const item = document.createElement('div');
-      item.className = `alert-item ${alert.class || 'info'}`;
-      item.style.position = 'relative';
-      item.style.display = 'flex';
-      item.style.justifyContent = 'space-between';
-      item.style.alignItems = 'center';
-
-      let iconHtml = `
-        <svg class="alert-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" y1="16" x2="12" y2="12"/>
-          <line x1="12" y1="8" x2="12.01" y2="8"/>
-        </svg>
-      `;
-      if (alert.class === 'success') {
-        iconHtml = `
-          <svg class="alert-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-            <polyline points="22 4 12 14.01 9 11.01"/>
-          </svg>
-        `;
-      }
-
-      item.innerHTML = `
-        <div class="alert-item-content" style="flex: 1; display: flex; align-items: center;">
-          ${iconHtml}
-          <div class="alert-item-text" style="font-size: 13px; line-height: 1.4; color: var(--color-text-dark);">
-            <strong>${alert.title}:</strong> ${alert.text}
-            <span style="display: block; font-size: 10px; opacity: 0.5; margin-top: 3px;">${alert.time || ''}</span>
-          </div>
-        </div>
-        <button class="dismiss-patient-alert-btn" data-id="${alert.id}" aria-label="Remover notificação" style="background: none; border: none; color: var(--color-text-muted); cursor: pointer; font-size: 18px; font-weight: 700; padding: 4px 8px; line-height: 1; transition: color 0.2s ease;">&times;</button>
-      `;
-
-      const btnDismiss = item.querySelector('.dismiss-patient-alert-btn');
-      if (btnDismiss) {
-        btnDismiss.addEventListener('click', (e) => {
-          e.stopPropagation();
-          patient.alerts = patient.alerts.filter(a => a.id !== alert.id);
-          renderPatientAlerts();
-        });
-      }
-
-      feed.appendChild(item);
+      historyLogs.push({
+        id: alert.id,
+        type: 'alert',
+        severity: alert.class || 'info',
+        title: alert.title,
+        text: alert.text,
+        time: alert.time || 'Recente',
+        isoTimestamp: alert.isoTimestamp || new Date().toISOString(), // Fallback for old alerts
+        dismissable: true
+      });
     });
   }
 
-  if (!hasAlerts) {
+  // 2. Add Persistent History Events
+  if (patient.history && patient.history.length > 0) {
+    patient.history.forEach((event, idx) => {
+      if (event.type === 'registered') {
+        historyLogs.push({
+          id: `hist_reg_${idx}`,
+          type: 'history',
+          severity: 'info',
+          title: 'Novo Medicamento',
+          text: `Você cadastrou <strong>${event.medName}</strong> (${event.dose}) para os horários: ${event.times.join(', ')}.`,
+          time: event.timestamp,
+          isoTimestamp: event.isoTimestamp || new Date().toISOString()
+        });
+      } else if (event.type === 'taken') {
+        historyLogs.push({
+          id: `hist_taken_${idx}`,
+          type: 'history',
+          severity: 'success',
+          title: 'Medicamento Tomado',
+          text: `Você marcou <strong>${event.medName}</strong> como tomado.`,
+          time: event.timestamp,
+          isoTimestamp: event.isoTimestamp || new Date().toISOString()
+        });
+      } else if (event.type === 'unmarked') {
+        historyLogs.push({
+          id: `hist_unmarked_${idx}`,
+          type: 'history',
+          severity: 'warning',
+          title: 'Medicamento Desmarcado',
+          text: `Você desmarcou <strong>${event.medName}</strong>.`,
+          time: event.timestamp,
+          isoTimestamp: event.isoTimestamp || new Date().toISOString()
+        });
+      }
+    });
+  }
+
+  // 3. Add Current Critical Alerts (Delayed meds not yet taken)
+  if (patient.meds && patient.meds.length > 0) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    patient.meds.forEach((med, idx) => {
+      const isPast = window.AgendaLogic.isTimePassed(med.time);
+      if (med.status !== 'tomado' && isPast) {
+        historyLogs.push({
+          id: `med_delayed_crit_${idx}`,
+          type: 'critical',
+          severity: 'danger',
+          title: 'Medicamento Atrasado',
+          text: `Atenção! Você ainda não tomou <strong>${med.name}</strong> das ${med.time}.`,
+          time: med.time,
+          isoTimestamp: `${todayStr}T${med.time}:00Z`
+        });
+      } else if (med.status !== 'tomado' && !isPast) {
+         historyLogs.push({
+          id: `med_pending_next_${idx}`,
+          type: 'next',
+          severity: 'warning',
+          title: 'Próximo Medicamento',
+          text: `Lembre-se de tomar <strong>${med.name}</strong> no horário agendado (${med.time}).`,
+          time: med.time,
+          isoTimestamp: `${todayStr}T${med.time}:00Z`
+        });
+      }
+    });
+  }
+
+  // Sort logs by isoTimestamp (newest first)
+  historyLogs.sort((a, b) => b.isoTimestamp.localeCompare(a.isoTimestamp));
+
+  if (historyLogs.length === 0) {
     feed.innerHTML = `
       <div class="empty-state" style="text-align: center; padding: 32px 16px; color: var(--color-text-light);">
-        <p>Você não tem alertas no momento.</p>
+        <p>Nenhuma atividade registrada.</p>
       </div>
     `;
+    return;
   }
+
+  // Render Log
+  const logContainer = document.createElement('div');
+  logContainer.className = 'history-log-timeline';
+
+  historyLogs.forEach(log => {
+    const item = document.createElement('div');
+    item.className = `log-item severity-${log.severity} log-type-${log.type}`;
+
+    let iconHtml = '';
+    if (log.severity === 'success') {
+      iconHtml = `<svg class="log-icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+    } else if (log.severity === 'danger') {
+      iconHtml = `<svg class="log-icon" viewBox="0 0 24 24"><octagon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+    } else if (log.severity === 'warning') {
+      iconHtml = `<svg class="log-icon" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+    } else {
+      iconHtml = `<svg class="log-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
+    }
+
+    item.innerHTML = `
+      <div class="log-time">${log.time}</div>
+      <div class="log-dot"></div>
+      <div class="log-content">
+        <div class="log-header">
+          <strong>${log.title}</strong>
+          ${log.dismissable ? `<button class="log-dismiss-btn" data-id="${log.id}">&times;</button>` : ''}
+        </div>
+        <p>${log.text}</p>
+      </div>
+    `;
+
+    if (log.dismissable) {
+      const btnDismiss = item.querySelector('.log-dismiss-btn');
+      btnDismiss.addEventListener('click', (e) => {
+        e.stopPropagation();
+        patient.alerts = patient.alerts.filter(a => a.id !== log.id);
+        renderPatientAlerts();
+      });
+    }
+
+    logContainer.appendChild(item);
+  });
+
+  feed.appendChild(logContainer);
 }
 
 let onboardingInterval = null;
@@ -384,6 +442,16 @@ function triggerSimulatedMedReminder() {
   }
 }
 
+function checkAndDismissToast(medName) {
+  const toast = document.getElementById('med-reminder-toast');
+  const body = document.getElementById('med-reminder-body');
+  if (toast && toast.classList.contains('active') && body) {
+    if (body.textContent.toLowerCase().includes(medName.toLowerCase())) {
+      toast.classList.remove('active');
+    }
+  }
+}
+
 const btnDismissReminder = document.getElementById('btn-dismiss-reminder');
 if (btnDismissReminder) {
   btnDismissReminder.addEventListener('click', () => {
@@ -396,6 +464,7 @@ if (btnDismissReminder) {
 const medBottomSheet = document.getElementById('med-bottom-sheet');
 const btnCloseBottomSheet = document.getElementById('btn-close-bottom-sheet');
 const btnRemoveMed = document.getElementById('btn-remove-med');
+const btnEditMedTime = document.getElementById('btn-edit-med-time');
 let selectedMedForEdit = null;
 
 function attachMedClickListener() {
@@ -428,6 +497,40 @@ function attachMedClickListener() {
 if (btnCloseBottomSheet) {
   btnCloseBottomSheet.addEventListener('click', () => {
     if (medBottomSheet) medBottomSheet.classList.remove('active');
+  });
+}
+
+if (btnEditMedTime) {
+  btnEditMedTime.addEventListener('click', () => {
+    if (selectedMedForEdit !== null) {
+      if (medBottomSheet) medBottomSheet.classList.remove('active');
+
+      // Navigate to Screen 5 Phase 2
+      showScreen('screen-5');
+      const searchPhase = document.getElementById('med-search-phase');
+      const timesPhase = document.getElementById('med-times-phase');
+      if (searchPhase && timesPhase) {
+        searchPhase.classList.add('d-none');
+        searchPhase.classList.remove('d-flex');
+        timesPhase.classList.remove('d-none');
+        timesPhase.classList.add('d-flex');
+      }
+
+      // Populate preview
+      const previewName = document.getElementById('preview-med-name');
+      const previewDose = document.getElementById('preview-med-dose');
+      if (previewName) previewName.textContent = selectedMedForEdit.med.name;
+      if (previewDose) previewDose.textContent = selectedMedForEdit.med.dose;
+
+      // Reset times to current med time
+      window.addedTimes = [selectedMedForEdit.med.time];
+      if (typeof renderTimeChips === 'function') renderTimeChips();
+
+      // Need to handle the update logic in btnConfirmMedTimes or replace it
+      // For now, let's mark it as an edit session
+      window.isEditingMed = true;
+      window.originalMedToEdit = JSON.parse(JSON.stringify(selectedMedForEdit.med));
+    }
   });
 }
 

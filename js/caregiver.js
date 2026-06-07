@@ -26,8 +26,22 @@ function renderCaregiverDashboard() {
   }
 
   patientsEntries.forEach(([patientId, patient]) => {
-    const isTaken = patient.statusClass === 'taken';
-    const statusText = patient.status || (isTaken ? 'Em dia' : 'Pendente');
+    // Dynamic status calculation based on current meds
+    let isTaken = true;
+    let anyDelayed = false;
+
+    if (patient.meds && patient.meds.length > 0) {
+      const takenCount = patient.meds.filter(m => m.status === 'tomado').length;
+      const delayedCount = patient.meds.filter(m => m.status === 'pendente' && window.AgendaLogic.isTimePassed(m.time)).length;
+      const explicitDelayedCount = patient.meds.filter(m => m.status === 'atrasado').length;
+
+      isTaken = takenCount === patient.meds.length;
+      anyDelayed = delayedCount > 0 || explicitDelayedCount > 0;
+    }
+
+    const statusClass = isTaken ? 'taken' : (anyDelayed ? 'atrasado' : 'pending');
+    const statusText = isTaken ? 'Em dia' : (anyDelayed ? 'Atraso' : 'Pendente');
+
 
     const card = document.createElement('div');
     card.className = 'patient-card';
@@ -35,12 +49,12 @@ function renderCaregiverDashboard() {
     card.setAttribute('tabindex', '0');
     card.setAttribute('aria-label', `Paciente ${patient.name}, status ${statusText}`);
     card.innerHTML = `
-      <div class="patient-avatar" style="${!isTaken ? 'background-color: #E2E8F0;' : ''}">${Components.escapeHTML(patient.avatar)}</div>
+      <div class="patient-avatar">${Components.escapeHTML(patient.avatar)}</div>
       <div class="patient-info">
         <h4>${Components.escapeHTML(patient.name)}</h4>
         <p>${Components.escapeHTML(formatAgeText(patient.age))}</p>
       </div>
-      <span class="patient-status-badge ${patient.statusClass || 'pending'}" ${!isTaken ? 'style="background-color: var(--color-danger-bg); color: var(--color-danger-text);"' : ''}>${Components.escapeHTML(statusText)}</span>
+      <span class="patient-status-badge ${statusClass}">${Components.escapeHTML(statusText)}</span>
     `;
 
     card.addEventListener('click', () => {
@@ -122,7 +136,10 @@ function renderPatientHomeChecklist() {
   patient.meds.forEach((med, index) => {
     const row = document.createElement('div');
     const isTaken = med.status === 'tomado';
-    row.className = `med-row ${isTaken ? 'taken' : ''}`;
+    const isPast = window.AgendaLogic.isTimePassed(med.time);
+    const isDelayed = !isTaken && isPast;
+
+    row.className = `med-row ${isTaken ? 'taken' : (isDelayed ? 'atrasado' : 'pendente')}`;
 
     let iconHtml = '';
     if (med.name.toLowerCase().includes('insulina')) {
@@ -161,7 +178,7 @@ function renderPatientHomeChecklist() {
       </div>
       <div class="med-time-status">
         <span class="med-time">${Components.escapeHTML(med.time)}</span>
-        <span class="med-status-indicator ${isTaken ? 'taken' : 'pending'}">${isTaken ? 'Tomado' : 'Pendente'}</span>
+        <span class="med-status-indicator ${isTaken ? 'taken' : (isDelayed ? 'atrasado' : 'pending')}">${isTaken ? 'Tomado' : (isDelayed ? 'Atrasado' : 'Pendente')}</span>
       </div>
     `;
 
@@ -171,12 +188,39 @@ function renderPatientHomeChecklist() {
     row.setAttribute('aria-label', `Medicamento ${med.name}, dose ${med.dose}, às ${med.time}, status ${isTaken ? 'Tomado' : 'Pendente'}`);
 
     row.addEventListener('click', () => {
-      const nowTaken = med.status !== 'tomado';
+      const isTakenNow = med.status === 'tomado';
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+      // Note: renderPatientHomeChecklist currently assumes it is displaying medications for "today".
+      // We block marking as taken only if it is a future time TODAY.
+      const isFutureTimeToday = !window.AgendaLogic.isTimePassed(med.time);
+
+      // Restriction: Prevent marking future medications as taken
+      if (!isTakenNow && isFutureTimeToday) {
+        alert(`Você ainda não pode tomar este medicamento. O horário agendado é ${med.time}.`);
+        return;
+      }
+
+      const nowTaken = !isTakenNow;
       med.status = nowTaken ? 'tomado' : 'pendente';
+
+      const pk = Object.keys(appState.patients).find(k => k !== '__sync');
+      if (pk && appState.patients[pk]) {
+        if (!appState.patients[pk].history) appState.patients[pk].history = [];
+        appState.patients[pk].history.push({
+          type: nowTaken ? 'taken' : 'unmarked',
+          medName: med.name,
+          timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+          isoTimestamp: new Date().toISOString()
+        });
+      }
       row.setAttribute('aria-checked', nowTaken ? 'true' : 'false');
 
+      if (med.status === 'tomado' && typeof checkAndDismissToast === 'function') {
+        checkAndDismissToast(med.name);
+      }
+
       // Sync with Screen 6 Agenda Data if the selected day is today
-      const todayStr = new Date().toISOString().split('T')[0];
       const agendaToday = agendaData[todayStr];
       if (agendaToday) {
         const agendaMed = agendaToday.meds.find(m => m.name.toLowerCase() === med.name.toLowerCase());

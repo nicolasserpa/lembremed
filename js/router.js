@@ -172,21 +172,28 @@ function renderAgenda() {
 
     data.meds.forEach((med, index) => {
       const card = document.createElement('div');
-      card.className = `agenda-med-card status-${med.status}`;
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      let displayStatus = med.status;
+      if (med.status === 'pendente' && selectedDate === todayStr && window.AgendaLogic.isTimePassed(med.time)) {
+        displayStatus = 'atrasado';
+      }
+
+      card.className = `agenda-med-card status-${displayStatus}`;
       card.setAttribute('data-med-index', index);
       card.setAttribute('tabindex', '0'); // Accessibility
       card.setAttribute('role', 'button');
-      card.setAttribute('aria-label', `Medicamento ${med.name}, dose ${med.dose}, às ${med.time}, status ${med.status}`);
+      card.setAttribute('aria-label', `Medicamento ${med.name}, dose ${med.dose}, às ${med.time}, status ${displayStatus}`);
 
       let badgeHtml = '';
-      if (med.status === 'tomado') {
+      if (displayStatus === 'tomado') {
         badgeHtml = `
           <div class="agenda-status-badge tomado">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             Tomado
           </div>
         `;
-      } else if (med.status === 'atrasado') {
+      } else if (displayStatus === 'atrasado') {
         badgeHtml = `
           <div class="agenda-status-badge atrasado">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -231,17 +238,53 @@ function renderAgenda() {
 
 function toggleMedStatus(date, index) {
   const med = agendaData[date].meds[index];
+
+  // Restriction: Prevent marking future medications as taken
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  const isFutureDate = date > todayStr;
+  const isFutureTimeToday = date === todayStr && !window.AgendaLogic.isTimePassed(med.time);
+
+  if (med.status !== 'tomado' && (isFutureDate || isFutureTimeToday)) {
+    alert(`Você ainda não pode tomar este medicamento. O horário agendado é ${med.time}${isFutureDate ? ' em um dia futuro' : ''}.`);
+    return;
+  }
+
   if (med.status === 'tomado') {
     med.status = 'pendente';
     announceToScreenReader(`Medicamento ${med.name} desmarcado`);
+
+    const pk = Object.keys(appState.patients).find(k => k !== '__sync');
+    if (pk && appState.patients[pk]) {
+      if (!appState.patients[pk].history) appState.patients[pk].history = [];
+      appState.patients[pk].history.push({
+        type: 'unmarked',
+        medName: med.name,
+        timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        isoTimestamp: new Date().toISOString()
+      });
+    }
   } else {
     med.status = 'tomado';
+
+    const pk = Object.keys(appState.patients).find(k => k !== '__sync');
+    if (pk && appState.patients[pk]) {
+      if (!appState.patients[pk].history) appState.patients[pk].history = [];
+      appState.patients[pk].history.push({
+        type: 'taken',
+        medName: med.name,
+        timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        isoTimestamp: new Date().toISOString()
+      });
+    }
     announceToScreenReader(`Medicamento ${med.name} marcado como tomado`);
+    if (typeof checkAndDismissToast === 'function') {
+      checkAndDismissToast(med.name);
+    }
   }
 
   // Bidirectional sync with patient home checklist if today
   const currentPatientKey = Object.keys(appState.patients).find(k => k !== '__sync');
-  const todayStr = new Date().toISOString().split('T')[0];
   if (date === todayStr && currentPatientKey) {
     const patMeds = patientsProfileData[currentPatientKey] && patientsProfileData[currentPatientKey].meds;
     if (patMeds) {
@@ -280,6 +323,8 @@ function updateCalendarStrip() {
   }
 
   const calendarDays = document.querySelectorAll('.calendar-day');
+  const todayStr = new Date().toISOString().split('T')[0];
+
   calendarDays.forEach(dayElement => {
     const dateStr = dayElement.getAttribute('data-date');
 
@@ -297,7 +342,12 @@ function updateCalendarStrip() {
       if (dayData && dayData.meds && dayData.meds.length > 0) {
         const total = dayData.meds.length;
         const taken = dayData.meds.filter(m => m.status === 'tomado').length;
-        const delayed = dayData.meds.filter(m => m.status === 'atrasado').length;
+        let delayed = dayData.meds.filter(m => m.status === 'atrasado').length;
+
+        if (dateStr === todayStr) {
+          const pastMedsNotTaken = dayData.meds.filter(m => m.status === 'pendente' && window.AgendaLogic.isTimePassed(m.time)).length;
+          delayed += pastMedsNotTaken;
+        }
 
         // Clear custom styles
         iconWrapper.style.backgroundColor = '';

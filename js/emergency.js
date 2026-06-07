@@ -91,6 +91,7 @@ window.addEventListener('storage', (e) => {
             title: 'Novo Cuidador Vinculado',
             text: `O cuidador <strong>${cgName}</strong> vinculou você ao perfil dele. Agora vocês compartilham o histórico em tempo real para um cuidado mais seguro!`,
             time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+            isoTimestamp: new Date().toISOString(),
             class: 'success'
           });
 

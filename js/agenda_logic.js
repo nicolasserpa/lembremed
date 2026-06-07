@@ -10,6 +10,18 @@ window.AgendaLogic = {
   countDelayedMeds: function(medsArray) {
     if (!medsArray) return 0;
     return medsArray.filter(m => m.status === 'atrasado').length;
+  },
+
+  isTimePassed: function(timeStr) {
+    if (!timeStr) return false;
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const now = new Date();
+    const currentHours = now.getHours();
+    const currentMinutes = now.getMinutes();
+
+    if (currentHours > hours) return true;
+    if (currentHours === hours && currentMinutes >= minutes) return true;
+    return false;
   }
 };
 

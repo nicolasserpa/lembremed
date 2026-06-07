@@ -712,7 +712,6 @@
 .mb-32 { margin-bottom: 32px !important; }
 
 /* Display & Flex */
-.d-none { display: none !important; }
 .h-full { height: 100% !important; }
 .w-full { width: 100% !important; }
 .flex-grow { flex-grow: 1 !important; }
@@ -777,3 +776,4 @@
   outline: 3px dashed var(--color-primary) !important;
   outline-offset: 2px !important;
 }
+.d-none { display: none !important; }

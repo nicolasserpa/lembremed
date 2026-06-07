@@ -149,20 +149,25 @@ function renderPatientProfile(patientId) {
   if (age) age.textContent = formatAgeText(patient.age);
 
   if (statusBadge) {
-    statusBadge.textContent = patient.status;
-    if (patient.statusClass === 'taken') {
-      statusBadge.className = 'patient-status-badge taken';
-      statusBadge.style.backgroundColor = 'var(--color-success-bg)';
-      statusBadge.style.color = 'var(--color-success-text)';
-    } else if (patient.statusClass === 'atrasado') {
-      statusBadge.className = 'patient-status-badge atrasado';
-      statusBadge.style.backgroundColor = 'var(--color-danger-bg)';
-      statusBadge.style.color = 'var(--color-danger-text)';
-    } else {
-      statusBadge.className = 'patient-status-badge pending';
-      statusBadge.style.backgroundColor = '#E2E8F0';
-      statusBadge.style.color = 'var(--color-text-muted)';
+    let isTaken = true;
+    let anyDelayed = false;
+
+    if (patient.meds && patient.meds.length > 0) {
+      const takenCount = patient.meds.filter(m => m.status === 'tomado').length;
+      const delayedCount = patient.meds.filter(m => m.status === 'pendente' && window.AgendaLogic.isTimePassed(m.time)).length;
+      const explicitDelayedCount = patient.meds.filter(m => m.status === 'atrasado').length;
+
+      isTaken = takenCount === patient.meds.length;
+      anyDelayed = delayedCount > 0 || explicitDelayedCount > 0;
     }
+
+    const displayStatusClass = isTaken ? 'taken' : (anyDelayed ? 'atrasado' : 'pending');
+    const displayStatusText = isTaken ? 'Em dia' : (anyDelayed ? 'Atraso' : 'Pendente');
+
+    statusBadge.textContent = displayStatusText;
+    statusBadge.className = `patient-status-badge ${displayStatusClass}`;
+    statusBadge.style.backgroundColor = ''; // Clear inline styles
+    statusBadge.style.color = '';
   }
 
   // Adherence SVG Progress Ring

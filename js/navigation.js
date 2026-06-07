@@ -160,8 +160,10 @@ if (btnResetSimulator) {
   const searchPhase = document.getElementById('med-search-phase');
   const timesPhase = document.getElementById('med-times-phase');
   if (searchPhase && timesPhase) {
-    timesPhase.style.display = 'none';
-    searchPhase.style.display = 'flex';
+    timesPhase.classList.add('d-none');
+    timesPhase.classList.remove('d-flex');
+    searchPhase.classList.remove('d-none');
+    searchPhase.classList.add('d-flex');
   }
 
   // Reset selected roles

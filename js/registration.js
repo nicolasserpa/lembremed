@@ -139,7 +139,8 @@ if (btnFlow2) {
           adherence: 100,
           meds: [],
           alerts: [],
-          notes: []
+          notes: [],
+          history: []
         };
         activePatientId = patientKey;
 
@@ -164,6 +165,7 @@ if (btnFlow2) {
             title: 'Novo Cuidador Vinculado',
             text: `O cuidador <strong>${linkedCg}</strong> vinculou você ao perfil dele. Agora vocês compartilham o histórico em tempo real para um cuidado mais seguro!`,
             time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+            isoTimestamp: new Date().toISOString(),
             class: 'success'
           });
         }
@@ -226,6 +228,8 @@ for (let i = 0; i < 60; i++) {
 let selectedHour = '12';
 let selectedMinute = '00';
 let addedTimes = []; // Holds selected times, e.g., ["08:00", "20:00"]
+window.addedTimes = addedTimes;
+window.renderTimeChips = renderTimeChips;
 
 function populatePickerColumns() {
   if (hoursColumn && hoursColumn.children.length === 0) {
@@ -366,6 +370,7 @@ if (btnAddSelectedTime) {
       return; // Avoid duplicates
     }
     addedTimes.push(timeStr);
+    window.addedTimes = addedTimes;
     addedTimes.sort(); // Sort chronological
     renderTimeChips();
   });
@@ -373,6 +378,7 @@ if (btnAddSelectedTime) {
 
 function renderTimeChips() {
   if (!selectedTimesChipsList) return;
+  addedTimes = window.addedTimes || addedTimes;
 
   // Clear all except empty state
   selectedTimesChipsList.innerHTML = '';
@@ -401,6 +407,7 @@ function renderTimeChips() {
 
     chip.querySelector('button').addEventListener('click', () => {
       addedTimes = addedTimes.filter(t => t !== timeStr);
+      window.addedTimes = addedTimes;
       renderTimeChips();
     });
 
@@ -408,17 +415,6 @@ function renderTimeChips() {
   });
 }
 
-const btnBackToSearch = document.getElementById('btn-back-to-search');
-if (btnBackToSearch) {
-  btnBackToSearch.addEventListener('click', () => {
-    const searchPhase = document.getElementById('med-search-phase');
-    const timesPhase = document.getElementById('med-times-phase');
-    if (searchPhase && timesPhase) {
-      timesPhase.classList.add('d-none');
-      searchPhase.classList.remove('d-none');
-    }
-  });
-}
 
 const btnConfirmMedTimes = document.getElementById('btn-confirm-med-times');
 if (btnConfirmMedTimes) {
@@ -435,6 +431,18 @@ if (btnConfirmMedTimes) {
     }
 
     const selectedWeekdays = getSelectedWeekdays();
+
+    // If editing, remove original medication entries first
+    if (window.isEditingMed && window.originalMedToEdit) {
+      const orig = window.originalMedToEdit;
+      Object.keys(agendaData).forEach(dateStr => {
+        agendaData[dateStr].meds = agendaData[dateStr].meds.filter(m => !(m.name === orig.name && m.time === orig.time));
+      });
+      const pk = activePatientId || Object.keys(appState.patients).find(k => k !== '__sync');
+      if (pk && appState.patients[pk]) {
+        appState.patients[pk].meds = appState.patients[pk].meds.filter(m => !(m.name === orig.name && m.time === orig.time));
+      }
+    }
 
     // Register all chosen times to all selected weekdays in agendaData
     Object.keys(agendaData).forEach(dateStr => {
@@ -474,17 +482,34 @@ if (btnConfirmMedTimes) {
         }
       });
       appState.patients[pk].meds.sort((a, b) => a.time.localeCompare(b.time));
+
+      if (!appState.patients[pk].history) appState.patients[pk].history = [];
+      appState.patients[pk].history.push({
+        type: 'registered',
+        medName: medName,
+        dose: dose,
+        times: addedTimes,
+        timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        isoTimestamp: new Date().toISOString()
+      });
     }
 
     publishPatientSyncData();
 
     // Reset search and times states
     addedTimes = [];
+    window.addedTimes = [];
+    window.isEditingMed = false;
+    window.originalMedToEdit = null;
     const searchPhase = document.getElementById('med-search-phase');
     const timesPhase = document.getElementById('med-times-phase');
+    const screen5Title = document.querySelector('#screen-5 .welcome-title');
     if (searchPhase && timesPhase) {
       timesPhase.classList.add('d-none');
+      timesPhase.classList.remove('d-flex');
       searchPhase.classList.remove('d-none');
+      searchPhase.classList.add('d-flex');
+      if (screen5Title) screen5Title.textContent = "Adicionar seus medicamentos";
     }
     if (searchInput) searchInput.value = '';
 
@@ -532,15 +557,19 @@ if (btnFlow5) {
 
       // Reset added times and display chips
       addedTimes = [];
+      window.addedTimes = [];
       renderTimeChips();
 
       // Switch Phase views
       const searchPhase = document.getElementById('med-search-phase');
       const timesPhase = document.getElementById('med-times-phase');
+      const screen5Title = document.querySelector('#screen-5 .welcome-title');
       if (searchPhase && timesPhase) {
         searchPhase.classList.add('d-none');
+        searchPhase.classList.remove('d-flex');
         timesPhase.classList.remove('d-none');
-        timesPhase.style.display = 'flex'; // Ensure flex layout if d-none was removed
+        timesPhase.classList.add('d-flex');
+        if (screen5Title) screen5Title.textContent = "Definir Horários";
 
         // Populate iOS Time picker columns dynamically
         populatePickerColumns();
@@ -727,10 +756,23 @@ if (btnScreen4Back) {
 }
 
 // Screen 5 header back button integration
-// Directs back to screen-4
+// Directs back to screen-4, but if in Phase 2, returns to Phase 1 first
 const btnScreen5Back = document.getElementById('btn-screen-5-back');
 if (btnScreen5Back) {
   btnScreen5Back.addEventListener('click', () => {
-    showScreen('screen-4');
+    const searchPhase = document.getElementById('med-search-phase');
+    const timesPhase = document.getElementById('med-times-phase');
+    const screen5Title = document.querySelector('#screen-5 .welcome-title');
+
+    if (timesPhase && !timesPhase.classList.contains('d-none')) {
+      // Return to Phase 1
+      timesPhase.classList.add('d-none');
+      timesPhase.classList.remove('d-flex');
+      searchPhase.classList.remove('d-none');
+      searchPhase.classList.add('d-flex');
+      if (screen5Title) screen5Title.textContent = "Adicionar seus medicamentos";
+    } else {
+      showScreen('screen-4');
+    }
   });
 }
