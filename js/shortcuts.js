@@ -11,15 +11,13 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault();
     const resetBtn = document.getElementById('btn-reset-simulator');
     if (resetBtn) resetBtn.click();
-    console.log('Atalho ativado: Reset Total');
   }
 
   // ALT + C: Clear Role (Volta para a tela de escolha de perfil e limpa a role atual)
   if (e.altKey && e.key.toLowerCase() === 'c') {
     e.preventDefault();
-    appState.user.role = ''; 
+    appState.user.role = '';
     showScreen('screen-2');
-    console.log('Atalho ativado: Limpeza de Perfil');
   }
 
   // ALT + M: Mock Data (Fills magical registration and advances)
@@ -33,7 +31,7 @@ document.addEventListener('keydown', (e) => {
     if (nameInput) nameInput.value = 'Dona Maria da Silva';
     if (genderSelect) genderSelect.value = 'feminino';
     if (ageInput) ageInput.value = '72';
-    
+
     if (btnFlow1) {
       // Clear error states, if any, before advancing
       nameInput.classList.remove('error-state');
@@ -42,10 +40,8 @@ document.addEventListener('keydown', (e) => {
       const ageErr = document.getElementById('age-error-msg');
       if (nameErr) nameErr.classList.add('d-none');
       if (ageErr) ageErr.classList.add('d-none');
-      
+
       btnFlow1.click();
     }
-    console.log('Atalho ativado: Mock de Cadastro');
   }
 });
-
