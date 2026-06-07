@@ -153,6 +153,7 @@ function renderPatientAlerts() {
         title: alert.title,
         text: alert.text,
         time: alert.time || 'Recente',
+        isoTimestamp: alert.isoTimestamp || new Date().toISOString(), // Fallback for old alerts
         dismissable: true
       });
     });
@@ -168,7 +169,8 @@ function renderPatientAlerts() {
           severity: 'info',
           title: 'Novo Medicamento',
           text: `Você cadastrou <strong>${event.medName}</strong> (${event.dose}) para os horários: ${event.times.join(', ')}.`,
-          time: event.timestamp
+          time: event.timestamp,
+          isoTimestamp: event.isoTimestamp || new Date().toISOString()
         });
       } else if (event.type === 'taken') {
         historyLogs.push({
@@ -177,7 +179,8 @@ function renderPatientAlerts() {
           severity: 'success',
           title: 'Medicamento Tomado',
           text: `Você marcou <strong>${event.medName}</strong> como tomado.`,
-          time: event.timestamp
+          time: event.timestamp,
+          isoTimestamp: event.isoTimestamp || new Date().toISOString()
         });
       } else if (event.type === 'unmarked') {
         historyLogs.push({
@@ -186,7 +189,8 @@ function renderPatientAlerts() {
           severity: 'warning',
           title: 'Medicamento Desmarcado',
           text: `Você desmarcou <strong>${event.medName}</strong>.`,
-          time: event.timestamp
+          time: event.timestamp,
+          isoTimestamp: event.isoTimestamp || new Date().toISOString()
         });
       }
     });
@@ -194,6 +198,7 @@ function renderPatientAlerts() {
 
   // 3. Add Current Critical Alerts (Delayed meds not yet taken)
   if (patient.meds && patient.meds.length > 0) {
+    const todayStr = new Date().toISOString().split('T')[0];
     patient.meds.forEach((med, idx) => {
       const isPast = window.AgendaLogic.isTimePassed(med.time);
       if (med.status !== 'tomado' && isPast) {
@@ -203,7 +208,8 @@ function renderPatientAlerts() {
           severity: 'danger',
           title: 'Medicamento Atrasado',
           text: `Atenção! Você ainda não tomou <strong>${med.name}</strong> das ${med.time}.`,
-          time: med.time
+          time: med.time,
+          isoTimestamp: `${todayStr}T${med.time}:00Z`
         });
       } else if (med.status !== 'tomado' && !isPast) {
          historyLogs.push({
@@ -212,14 +218,15 @@ function renderPatientAlerts() {
           severity: 'warning',
           title: 'Próximo Medicamento',
           text: `Lembre-se de tomar <strong>${med.name}</strong> no horário agendado (${med.time}).`,
-          time: med.time
+          time: med.time,
+          isoTimestamp: `${todayStr}T${med.time}:00Z`
         });
       }
     });
   }
 
-  // Sort logs by time (simplistic sort for demo)
-  historyLogs.sort((a, b) => b.time.localeCompare(a.time));
+  // Sort logs by isoTimestamp (newest first)
+  historyLogs.sort((a, b) => b.isoTimestamp.localeCompare(a.isoTimestamp));
 
   if (historyLogs.length === 0) {
     feed.innerHTML = `
@@ -236,7 +243,7 @@ function renderPatientAlerts() {
 
   historyLogs.forEach(log => {
     const item = document.createElement('div');
-    item.className = `log-item severity-${log.severity}`;
+    item.className = `log-item severity-${log.severity} log-type-${log.type}`;
 
     let iconHtml = '';
     if (log.severity === 'success') {

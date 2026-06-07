@@ -238,6 +238,18 @@ function renderAgenda() {
 
 function toggleMedStatus(date, index) {
   const med = agendaData[date].meds[index];
+
+  // Restriction: Prevent marking future medications as taken
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  const isFutureDate = date > todayStr;
+  const isFutureTimeToday = date === todayStr && !window.AgendaLogic.isTimePassed(med.time);
+
+  if (med.status !== 'tomado' && (isFutureDate || isFutureTimeToday)) {
+    alert(`Você ainda não pode tomar este medicamento. O horário agendado é ${med.time}${isFutureDate ? ' em um dia futuro' : ''}.`);
+    return;
+  }
+
   if (med.status === 'tomado') {
     med.status = 'pendente';
     announceToScreenReader(`Medicamento ${med.name} desmarcado`);
@@ -248,7 +260,8 @@ function toggleMedStatus(date, index) {
       appState.patients[pk].history.push({
         type: 'unmarked',
         medName: med.name,
-        timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+        timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        isoTimestamp: new Date().toISOString()
       });
     }
   } else {
@@ -260,7 +273,8 @@ function toggleMedStatus(date, index) {
       appState.patients[pk].history.push({
         type: 'taken',
         medName: med.name,
-        timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+        timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        isoTimestamp: new Date().toISOString()
       });
     }
     announceToScreenReader(`Medicamento ${med.name} marcado como tomado`);

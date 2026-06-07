@@ -188,7 +188,20 @@ function renderPatientHomeChecklist() {
     row.setAttribute('aria-label', `Medicamento ${med.name}, dose ${med.dose}, às ${med.time}, status ${isTaken ? 'Tomado' : 'Pendente'}`);
 
     row.addEventListener('click', () => {
-      const nowTaken = med.status !== 'tomado';
+      const isTakenNow = med.status === 'tomado';
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+      // Note: renderPatientHomeChecklist currently assumes it is displaying medications for "today".
+      // We block marking as taken only if it is a future time TODAY.
+      const isFutureTimeToday = !window.AgendaLogic.isTimePassed(med.time);
+
+      // Restriction: Prevent marking future medications as taken
+      if (!isTakenNow && isFutureTimeToday) {
+        alert(`Você ainda não pode tomar este medicamento. O horário agendado é ${med.time}.`);
+        return;
+      }
+
+      const nowTaken = !isTakenNow;
       med.status = nowTaken ? 'tomado' : 'pendente';
 
       const pk = Object.keys(appState.patients).find(k => k !== '__sync');
@@ -197,7 +210,8 @@ function renderPatientHomeChecklist() {
         appState.patients[pk].history.push({
           type: nowTaken ? 'taken' : 'unmarked',
           medName: med.name,
-          timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+          timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+          isoTimestamp: new Date().toISOString()
         });
       }
       row.setAttribute('aria-checked', nowTaken ? 'true' : 'false');

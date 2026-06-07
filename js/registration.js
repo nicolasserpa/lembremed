@@ -165,6 +165,7 @@ if (btnFlow2) {
             title: 'Novo Cuidador Vinculado',
             text: `O cuidador <strong>${linkedCg}</strong> vinculou você ao perfil dele. Agora vocês compartilham o histórico em tempo real para um cuidado mais seguro!`,
             time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+            isoTimestamp: new Date().toISOString(),
             class: 'success'
           });
         }
@@ -419,11 +420,13 @@ if (btnBackToSearch) {
   btnBackToSearch.addEventListener('click', () => {
     const searchPhase = document.getElementById('med-search-phase');
     const timesPhase = document.getElementById('med-times-phase');
+    const screen5Title = document.querySelector('#screen-5 .welcome-title');
     if (searchPhase && timesPhase) {
       timesPhase.classList.add('d-none');
       timesPhase.classList.remove('d-flex');
       searchPhase.classList.remove('d-none');
       searchPhase.classList.add('d-flex');
+      if (screen5Title) screen5Title.textContent = "Adicionar seus medicamentos";
     }
   });
 }
@@ -501,7 +504,8 @@ if (btnConfirmMedTimes) {
         medName: medName,
         dose: dose,
         times: addedTimes,
-        timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+        timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        isoTimestamp: new Date().toISOString()
       });
     }
 
@@ -514,11 +518,13 @@ if (btnConfirmMedTimes) {
     window.originalMedToEdit = null;
     const searchPhase = document.getElementById('med-search-phase');
     const timesPhase = document.getElementById('med-times-phase');
+    const screen5Title = document.querySelector('#screen-5 .welcome-title');
     if (searchPhase && timesPhase) {
       timesPhase.classList.add('d-none');
       timesPhase.classList.remove('d-flex');
       searchPhase.classList.remove('d-none');
       searchPhase.classList.add('d-flex');
+      if (screen5Title) screen5Title.textContent = "Adicionar seus medicamentos";
     }
     if (searchInput) searchInput.value = '';
 
@@ -572,11 +578,13 @@ if (btnFlow5) {
       // Switch Phase views
       const searchPhase = document.getElementById('med-search-phase');
       const timesPhase = document.getElementById('med-times-phase');
+      const screen5Title = document.querySelector('#screen-5 .welcome-title');
       if (searchPhase && timesPhase) {
         searchPhase.classList.add('d-none');
         searchPhase.classList.remove('d-flex');
         timesPhase.classList.remove('d-none');
         timesPhase.classList.add('d-flex');
+        if (screen5Title) screen5Title.textContent = "Definir Horários";
 
         // Populate iOS Time picker columns dynamically
         populatePickerColumns();
@@ -763,10 +771,23 @@ if (btnScreen4Back) {
 }
 
 // Screen 5 header back button integration
-// Directs back to screen-4
+// Directs back to screen-4, but if in Phase 2, returns to Phase 1 first
 const btnScreen5Back = document.getElementById('btn-screen-5-back');
 if (btnScreen5Back) {
   btnScreen5Back.addEventListener('click', () => {
-    showScreen('screen-4');
+    const searchPhase = document.getElementById('med-search-phase');
+    const timesPhase = document.getElementById('med-times-phase');
+    const screen5Title = document.querySelector('#screen-5 .welcome-title');
+
+    if (timesPhase && !timesPhase.classList.contains('d-none')) {
+      // Return to Phase 1
+      timesPhase.classList.add('d-none');
+      timesPhase.classList.remove('d-flex');
+      searchPhase.classList.remove('d-none');
+      searchPhase.classList.add('d-flex');
+      if (screen5Title) screen5Title.textContent = "Adicionar seus medicamentos";
+    } else {
+      showScreen('screen-4');
+    }
   });
 }
