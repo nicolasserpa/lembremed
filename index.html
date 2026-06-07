@@ -561,6 +561,18 @@
                     </div>
                   </div>
 
+                  <!-- Weekday Selector -->
+                  <div style="font-size: 11px; font-weight: 800; color: var(--color-text-muted); text-transform: uppercase; margin-bottom: 8px;">Dias da Semana:</div>
+                  <div class="weekday-selector-container" id="weekday-selector">
+                    <div class="weekday-chip selected" data-day="0">Dom</div>
+                    <div class="weekday-chip selected" data-day="1">Seg</div>
+                    <div class="weekday-chip selected" data-day="2">Ter</div>
+                    <div class="weekday-chip selected" data-day="3">Qua</div>
+                    <div class="weekday-chip selected" data-day="4">Qui</div>
+                    <div class="weekday-chip selected" data-day="5">Sex</div>
+                    <div class="weekday-chip selected" data-day="6">Sáb</div>
+                  </div>
+
                   <!-- iOS-Style Double Wheel Time Picker -->
                   <div class="ios-time-picker-container">
                     <div style="display: flex; width: 100%; justify-content: space-around; font-size: 11px; font-weight: 800; color: var(--color-text-muted); text-transform: uppercase; margin-bottom: 8px;">
@@ -634,41 +646,7 @@
 
                 <!-- 7-Day Calendar Strip -->
                 <div class="calendar-strip" id="agenda-calendar-strip">
-                  <div class="calendar-day" data-date="2026-05-15">
-                    <span class="day-name">Sex</span>
-                    <span class="day-num">15</span>
-                    <div class="day-status-icon"></div>
-                  </div>
-                  <div class="calendar-day" data-date="2026-05-16">
-                    <span class="day-name">Sáb</span>
-                    <span class="day-num">16</span>
-                    <div class="day-status-icon"></div>
-                  </div>
-                  <div class="calendar-day" data-date="2026-05-17">
-                    <span class="day-name">Dom</span>
-                    <span class="day-num">17</span>
-                    <div class="day-status-icon"></div>
-                  </div>
-                  <div class="calendar-day" data-date="2026-05-18">
-                    <span class="day-name">Seg</span>
-                    <span class="day-num">18</span>
-                    <div class="day-status-icon"></div>
-                  </div>
-                  <div class="calendar-day" data-date="2026-05-19">
-                    <span class="day-name">Ter</span>
-                    <span class="day-num">19</span>
-                    <div class="day-status-icon"></div>
-                  </div>
-                  <div class="calendar-day" data-date="2026-05-20">
-                    <span class="day-name">Qua</span>
-                    <span class="day-num">20</span>
-                    <div class="day-status-icon"></div>
-                  </div>
-                  <div class="calendar-day selected" data-date="2026-05-21">
-                    <span class="day-name">Qui</span>
-                    <span class="day-num">21</span>
-                    <div class="day-status-icon"></div>
-                  </div>
+                  <!-- Will be populated dynamically in JS -->
                 </div>
 
                 <!-- Selected Day Title Header -->

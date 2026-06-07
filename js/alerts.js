@@ -30,12 +30,12 @@ if (btnSavePatient) {
     const ageInput = document.getElementById('add-patient-age');
     const ageErrorMsg = document.getElementById('add-patient-age-error');
     const ageRawVal = ageInput.value.trim();
-    
+
     let ageValText = 'Idade não informada';
     if (ageRawVal) {
       const cleanAgeStr = ageRawVal.replace(/\D/g, '');
       const parsedAge = cleanAgeStr ? parseInt(cleanAgeStr, 10) : NaN;
-      
+
       if (isNaN(parsedAge) || parsedAge < 0 || parsedAge > 130) {
         ageInput.classList.add('error-state');
         if (ageErrorMsg) ageErrorMsg.style.display = 'block';
@@ -44,12 +44,12 @@ if (btnSavePatient) {
       }
       ageValText = `${parsedAge} anos`;
     }
-    
+
     if (ageErrorMsg) ageErrorMsg.style.display = 'none';
     ageInput.classList.remove('error-state');
 
     const mockId = 'patient_' + Date.now();
-    
+
     appState.patients[mockId] = {
       avatar: nameVal.substring(0, 2).toUpperCase(),
       name: nameVal,
@@ -61,7 +61,7 @@ if (btnSavePatient) {
       alerts: [],
       notes: []
     };
-    
+
     // Limpa os campos
     nameInput.value = '';
     document.getElementById('add-patient-age').value = '';
@@ -106,7 +106,7 @@ if (btnAboutClose) btnAboutClose.addEventListener('click', closeAbout);
 const performLogout = () => {
   // Reset to screen-1
   const btnResetSimulator = document.getElementById('btn-reset-simulator');
-  if (btnResetSimulator) btnResetSimulator.click(); 
+  if (btnResetSimulator) btnResetSimulator.click();
   else showScreen('screen-1');
 };
 
@@ -125,11 +125,11 @@ if (patLogoutBtn) patLogoutBtn.addEventListener('click', performLogout);
 function renderPatientAlerts() {
   const feed = document.getElementById('patient-alerts-feed');
   if (!feed) return;
-  
+
   const pk = activePatientId || Object.keys(appState.patients).find(k => k !== '__sync');
   const patient = pk ? (appState.patients[pk] || patientsProfileData[pk]) : null;
   feed.innerHTML = '';
-  
+
   if (!patient) {
     feed.innerHTML = `
       <div class="empty-state" style="text-align: center; padding: 32px 16px; color: var(--color-text-light);">
@@ -140,7 +140,7 @@ function renderPatientAlerts() {
   }
 
   let hasAlerts = false;
-  
+
   // 1. Pending Medications Alerts (Critical/System)
   const pendingMeds = patient.meds.filter(m => m.status === 'pendente' || m.status === 'atrasado');
   if (pendingMeds.length > 0) {
@@ -175,7 +175,7 @@ function renderPatientAlerts() {
       item.style.display = 'flex';
       item.style.justifyContent = 'space-between';
       item.style.alignItems = 'center';
-      
+
       let iconHtml = `
         <svg class="alert-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"/>
@@ -202,7 +202,7 @@ function renderPatientAlerts() {
         </div>
         <button class="dismiss-patient-alert-btn" data-id="${alert.id}" aria-label="Remover notificação" style="background: none; border: none; color: var(--color-text-muted); cursor: pointer; font-size: 18px; font-weight: 700; padding: 4px 8px; line-height: 1; transition: color 0.2s ease;">&times;</button>
       `;
-      
+
       const btnDismiss = item.querySelector('.dismiss-patient-alert-btn');
       if (btnDismiss) {
         btnDismiss.addEventListener('click', (e) => {
@@ -211,11 +211,11 @@ function renderPatientAlerts() {
           renderPatientAlerts();
         });
       }
-      
+
       feed.appendChild(item);
     });
   }
-  
+
   if (!hasAlerts) {
     feed.innerHTML = `
       <div class="empty-state" style="text-align: center; padding: 32px 16px; color: var(--color-text-light);">
@@ -231,19 +231,19 @@ function initOnboardingCarousel(role) {
   const dotsContainer = document.getElementById('onboarding-dots');
   const btnFlow3 = document.getElementById('btn-flow-3');
   if (!carousel || !dotsContainer) return;
-  
+
   if (btnFlow3) {
     btnFlow3.textContent = "Próximo";
   }
-  
+
   // Clear any previous interval
   if (onboardingInterval) {
     clearInterval(onboardingInterval);
     onboardingInterval = null;
   }
-  
+
   const slidesData = onboardingSlides[role] || onboardingSlides.patient;
-  
+
   // Generate slides HTML
   let slidesHtml = '';
   slidesData.forEach((slide, idx) => {
@@ -259,7 +259,7 @@ function initOnboardingCarousel(role) {
     `;
   });
   carousel.innerHTML = slidesHtml;
-  
+
   // Generate dots HTML
   let dotsHtml = '';
   slidesData.forEach((_, idx) => {
@@ -267,21 +267,21 @@ function initOnboardingCarousel(role) {
     dotsHtml += `<span class="dot ${activeClass}" data-index="${idx}" role="button" aria-label="Ver slide ${idx + 1}" style="cursor: pointer;"></span>`;
   });
   dotsContainer.innerHTML = dotsHtml;
-  
+
   let currentSlide = 0;
   const slides = carousel.querySelectorAll('.onboarding-slide');
   const dots = dotsContainer.querySelectorAll('.dot');
-  
+
   function goToSlide(idx) {
     if (idx < 0 || idx >= slides.length) return;
     slides[currentSlide].classList.remove('active');
     dots[currentSlide].classList.remove('active');
-    
+
     currentSlide = idx;
-    
+
     slides[currentSlide].classList.add('active');
     dots[currentSlide].classList.add('active');
-    
+
     if (btnFlow3) {
       if (currentSlide === slides.length - 1) {
         btnFlow3.textContent = "Começar";
@@ -290,7 +290,7 @@ function initOnboardingCarousel(role) {
       }
     }
   }
-  
+
   // Setup dot click listeners
   dots.forEach(dot => {
     dot.addEventListener('click', (e) => {
@@ -299,12 +299,12 @@ function initOnboardingCarousel(role) {
       resetInterval();
     });
   });
-  
+
   // Setup clean click listener for the flow button using live DOM elements
   if (btnFlow3) {
     const newBtn = btnFlow3.cloneNode(true);
     btnFlow3.parentNode.replaceChild(newBtn, btnFlow3);
-    
+
     newBtn.addEventListener('click', () => {
       if (currentSlide < slides.length - 1) {
         goToSlide(currentSlide + 1);
@@ -318,7 +318,7 @@ function initOnboardingCarousel(role) {
       }
     });
   }
-  
+
   function resetInterval() {
     if (onboardingInterval) clearInterval(onboardingInterval);
     onboardingInterval = setInterval(() => {
@@ -326,7 +326,7 @@ function initOnboardingCarousel(role) {
       goToSlide(next);
     }, 4000);
   }
-  
+
   resetInterval();
 }
 
@@ -351,12 +351,12 @@ let lastTriggeredTime = '';
 function triggerSimulatedMedReminder() {
   const toast = document.getElementById('med-reminder-toast');
   if (!toast) return;
-  
+
   // Only show if there is a pending med
   const pk = activePatientId || Object.keys(appState.patients).find(k => k !== '__sync');
   const patient = pk ? appState.patients[pk] : null;
   if (!patient || !patient.meds) return;
-  
+
   // Pega a hora atual do sistema em formato HH:MM
   const now = new Date();
   let hh = now.getHours();
@@ -364,22 +364,22 @@ function triggerSimulatedMedReminder() {
   hh = hh < 10 ? '0' + hh : '' + hh;
   mm = mm < 10 ? '0' + mm : '' + mm;
   const currentTimeStr = `${hh}:${mm}`;
-  
+
   // Avoid firing again in the same minute
   if (lastTriggeredTime === currentTimeStr) return;
-  
+
   // Find a registered medication whose time matches the current time and hasn't been taken
   const matchingMed = patient.meds.find(m => m.time === currentTimeStr && m.status !== 'tomado');
   if (matchingMed) {
     document.getElementById('med-reminder-body').textContent = `${matchingMed.name} — ${matchingMed.dose}`;
-    
+
     setTimeout(() => {
       toast.classList.add('active');
       if (typeof announceToScreenReader === 'function') {
           announceToScreenReader("Aviso: Hora do medicamento " + matchingMed.name);
       }
     }, 500);
-    
+
     lastTriggeredTime = currentTimeStr;
   }
 }
@@ -401,12 +401,12 @@ let selectedMedForEdit = null;
 function attachMedClickListener() {
   const patientMedsContainer = document.getElementById('patient-meds-list-container');
   if (!patientMedsContainer) return;
-  
+
   // Override render function
   const originalRenderPatientMedsList = window.renderPatientMedsList || renderPatientMedsList;
   window.renderPatientMedsList = renderPatientMedsList = function() {
-    originalRenderPatientMedsList(); 
-    
+    originalRenderPatientMedsList();
+
     const cards = patientMedsContainer.querySelectorAll('.profile-med-item');
     cards.forEach((card, index) => {
       card.style.cursor = 'pointer';
@@ -438,12 +438,12 @@ if (btnRemoveMed) {
       const patient = pk ? patientsProfileData[pk] : null;
       if (!patient) return;
       patient.meds.splice(selectedMedForEdit.index, 1);
-      
+
       if (pk && appState.patients[pk] && appState.patients[pk].meds) {
         appState.patients[pk].meds.splice(selectedMedForEdit.index, 1);
       }
-      
-      const todayDate = selectedDate || '2026-05-21';
+
+      const todayDate = selectedDate || new Date().toISOString().split('T')[0];
       if (agendaData[todayDate] && agendaData[todayDate].meds) {
         const nameToRem = selectedMedForEdit.med.name;
         agendaData[todayDate].meds = agendaData[todayDate].meds.filter(m => m.name !== nameToRem);
@@ -453,7 +453,7 @@ if (btnRemoveMed) {
       renderPatientHomeChecklist();
       renderAgenda();
       if (medBottomSheet) medBottomSheet.classList.remove('active');
-      
+
       if (typeof announceToScreenReader === 'function') {
           announceToScreenReader("Medicamento removido com sucesso.");
       }
@@ -474,10 +474,10 @@ caregiverAlerts.forEach(alert => {
         </svg>
       </button>
     `;
-    
+
     const btn = chevronDiv.querySelector('.dismiss-alert-btn');
     btn.addEventListener('click', (e) => {
-      e.stopPropagation(); 
+      e.stopPropagation();
       alert.style.opacity = '0';
       alert.style.transform = 'translateX(20px)';
       setTimeout(() => alert.style.display = 'none', 300);
@@ -487,4 +487,4 @@ caregiverAlerts.forEach(alert => {
 
 setTimeout(attachMedClickListener, 500);
 
-// ==========================================================================
+// ==========================================================================

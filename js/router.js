@@ -62,21 +62,50 @@ const BASELINE_AGENDA_DATA = {
 };
 
 let agendaData = {};
-let selectedDate = '2026-05-21';
+let selectedDate = '';
 
 function initAgendaData() {
-  if (appState.mode === 'pitch') {
-    agendaData = {
-      '2026-05-15': { dateLabel: 'Sexta-feira, 15 de Maio', meds: [] },
-      '2026-05-16': { dateLabel: 'Sábado, 16 de Maio', meds: [] },
-      '2026-05-17': { dateLabel: 'Domingo, 17 de Maio', meds: [] },
-      '2026-05-18': { dateLabel: 'Segunda-feira, 18 de Maio', meds: [] },
-      '2026-05-19': { dateLabel: 'Terça-feira, 19 de Maio', meds: [] },
-      '2026-05-20': { dateLabel: 'Quarta-feira, 20 de Maio', meds: [] },
-      '2026-05-21': { dateLabel: 'Hoje, 21 de Maio', meds: [] }
+  const now = new Date();
+  const dayOfWeek = now.getDay(); // 0 (Dom) to 6 (Sáb)
+
+  // Start from Sunday of the current week
+  const sunday = new Date(now);
+  sunday.setDate(now.getDate() - dayOfWeek);
+  sunday.setHours(0, 0, 0, 0);
+
+  agendaData = {};
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(sunday);
+    date.setDate(sunday.getDate() + i);
+    const dateStr = date.toISOString().split('T')[0];
+
+    let dateLabel = date.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+    // Capitalize first letter
+    dateLabel = dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
+
+    if (dateStr === now.toISOString().split('T')[0]) {
+      dateLabel = `Hoje, ${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })}`;
+      selectedDate = dateStr;
+    }
+
+    agendaData[dateStr] = {
+      dateLabel: dateLabel,
+      meds: []
     };
-  } else {
-    agendaData = JSON.parse(JSON.stringify(BASELINE_AGENDA_DATA));
+  }
+
+  // Populate with baseline data if not in pitch mode, matching by day of week if exact date doesn't match
+  if (appState.mode !== 'pitch') {
+    Object.keys(BASELINE_AGENDA_DATA).forEach(baseDateStr => {
+      const baseDate = new Date(baseDateStr + 'T00:00:00');
+      const baseDayOfWeek = baseDate.getDay();
+
+      const targetDateStr = Object.keys(agendaData).find(d => new Date(d + 'T00:00:00').getDay() === baseDayOfWeek);
+      if (targetDateStr) {
+        agendaData[targetDateStr].meds = JSON.parse(JSON.stringify(BASELINE_AGENDA_DATA[baseDateStr].meds));
+      }
+    });
   }
 }
 
@@ -85,7 +114,7 @@ function renderAgenda() {
   const medListContainer = document.getElementById('agenda-med-list');
   const selectedDayLabel = document.getElementById('agenda-selected-day-label');
   const selectedDayStatus = document.getElementById('agenda-selected-day-status');
-  
+
   // Always update calendar strip UI & Weekly Adherence at the start so selection class is visually updated immediately
   updateCalendarStrip();
   updateWeeklyAdherence();
@@ -119,7 +148,7 @@ function renderAgenda() {
   // 2. Count meds status
   const totalMeds = data.meds.length;
   const takenMeds = data.meds.filter(m => m.status === 'tomado').length;
-  
+
   if (selectedDayStatus) {
     selectedDayStatus.textContent = `${takenMeds} de ${totalMeds} tomados`;
   }
@@ -127,7 +156,7 @@ function renderAgenda() {
   // 3. Render medication list
   if (medListContainer) {
     medListContainer.innerHTML = '';
-    
+
     if (data.meds.length === 0) {
       medListContainer.innerHTML = `
         <div class="empty-state" style="text-align: center; padding: 32px 16px; color: var(--color-text-light);">
@@ -140,7 +169,7 @@ function renderAgenda() {
       `;
       return;
     }
-    
+
     data.meds.forEach((med, index) => {
       const card = document.createElement('div');
       card.className = `agenda-med-card status-${med.status}`;
@@ -148,7 +177,7 @@ function renderAgenda() {
       card.setAttribute('tabindex', '0'); // Accessibility
       card.setAttribute('role', 'button');
       card.setAttribute('aria-label', `Medicamento ${med.name}, dose ${med.dose}, às ${med.time}, status ${med.status}`);
-      
+
       let badgeHtml = '';
       if (med.status === 'tomado') {
         badgeHtml = `
@@ -181,7 +210,7 @@ function renderAgenda() {
         </div>
         ${badgeHtml}
       `;
-      
+
       // Status toggle click handler
       card.addEventListener('click', () => {
         toggleMedStatus(selectedDate, index);
@@ -209,10 +238,11 @@ function toggleMedStatus(date, index) {
     med.status = 'tomado';
     announceToScreenReader(`Medicamento ${med.name} marcado como tomado`);
   }
-  
+
   // Bidirectional sync with patient home checklist if today
   const currentPatientKey = Object.keys(appState.patients).find(k => k !== '__sync');
-  if (date === '2026-05-21' && currentPatientKey) {
+  const todayStr = new Date().toISOString().split('T')[0];
+  if (date === todayStr && currentPatientKey) {
     const patMeds = patientsProfileData[currentPatientKey] && patientsProfileData[currentPatientKey].meds;
     if (patMeds) {
       const patMed = patMeds.find(m => m.name.toLowerCase() === med.name.toLowerCase());
@@ -221,15 +251,38 @@ function toggleMedStatus(date, index) {
     renderPatientHomeChecklist();
     publishPatientSyncData();
   }
-  
+
   renderAgenda();
 }
 
 function updateCalendarStrip() {
+  const strip = document.getElementById('agenda-calendar-strip');
+  if (!strip) return;
+
+  const dates = Object.keys(agendaData).sort();
+  const dayNamesShort = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+  // If the strip is empty, populate it
+  if (strip.children.length === 0) {
+    dates.forEach(dateStr => {
+      const date = new Date(dateStr + 'T00:00:00');
+      const day = document.createElement('div');
+      day.className = 'calendar-day';
+      day.setAttribute('data-date', dateStr);
+      day.innerHTML = `
+        <span class="day-name">${dayNamesShort[date.getDay()]}</span>
+        <span class="day-num">${date.getDate()}</span>
+        <div class="day-status-icon"></div>
+      `;
+      strip.appendChild(day);
+    });
+    setupCalendarClickListeners();
+  }
+
   const calendarDays = document.querySelectorAll('.calendar-day');
   calendarDays.forEach(dayElement => {
     const dateStr = dayElement.getAttribute('data-date');
-    
+
     if (dateStr === selectedDate) {
       dayElement.classList.add('selected');
       dayElement.setAttribute('aria-selected', 'true');
@@ -237,7 +290,7 @@ function updateCalendarStrip() {
       dayElement.classList.remove('selected');
       dayElement.setAttribute('aria-selected', 'false');
     }
-    
+
     const dayData = agendaData[dateStr];
     const iconWrapper = dayElement.querySelector('.day-status-icon');
     if (iconWrapper) {
@@ -245,14 +298,14 @@ function updateCalendarStrip() {
         const total = dayData.meds.length;
         const taken = dayData.meds.filter(m => m.status === 'tomado').length;
         const delayed = dayData.meds.filter(m => m.status === 'atrasado').length;
-        
+
         // Clear custom styles
         iconWrapper.style.backgroundColor = '';
         iconWrapper.style.border = '';
         iconWrapper.style.boxShadow = '';
-        
+
         iconWrapper.className = 'day-status-icon';
-        
+
         if (taken === total) {
           iconWrapper.classList.add('taken');
           iconWrapper.textContent = '✓';
@@ -284,35 +337,35 @@ function updateWeeklyAdherence() {
   let completedDaysCount = 0;
   let totalMedsAllDays = 0;
   let takenMedsAllDays = 0;
-  
+
   calendarDays.forEach(dayElement => {
     const dateStr = dayElement.getAttribute('data-date');
     const dayData = agendaData[dateStr];
     if (dayData && dayData.meds && dayData.meds.length > 0) {
       const total = dayData.meds.length;
       const taken = dayData.meds.filter(m => m.status === 'tomado').length;
-      
+
       totalMedsAllDays += total;
       takenMedsAllDays += taken;
-      
+
       if (taken === total) {
         completedDaysCount++;
       }
     }
   });
-  
+
   const summaryText = document.getElementById('agenda-adherence-summary');
   if (summaryText) {
     summaryText.textContent = `${completedDaysCount} de 7 dias completos`;
   }
-  
+
   const percentage = totalMedsAllDays > 0 ? Math.round((takenMedsAllDays / totalMedsAllDays) * 100) : 0;
-  
+
   const percentageText = document.getElementById('agenda-adherence-percentage');
   if (percentageText) {
     percentageText.textContent = `${percentage}%`;
   }
-  
+
   const circlePath = document.getElementById('agenda-adherence-circle');
   if (circlePath) {
     circlePath.setAttribute('stroke-dasharray', `${percentage}, 100`);
@@ -324,14 +377,14 @@ function setupCalendarClickListeners() {
   calendarDays.forEach(dayElement => {
     dayElement.setAttribute('tabindex', '0'); // Accessibility
     dayElement.setAttribute('role', 'button'); // Accessibility
-    
+
     const dayName = dayElement.querySelector('.day-name')?.textContent || '';
     const dayNum = dayElement.querySelector('.day-num')?.textContent || '';
     dayElement.setAttribute('aria-label', `Selecionar ${dayName}, dia ${dayNum}`);
-    
+
     const dateStr = dayElement.getAttribute('data-date');
     dayElement.setAttribute('aria-selected', dateStr === selectedDate ? 'true' : 'false');
-    
+
     const selectHandler = (e) => {
       if (e) {
         e.preventDefault();
@@ -341,7 +394,7 @@ function setupCalendarClickListeners() {
       selectedDate = dateStr;
       renderAgenda();
     };
-    
+
     dayElement.addEventListener('click', selectHandler);
     dayElement.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
@@ -376,7 +429,9 @@ function showScreen(screenId) {
   if (!allowed) {
     console.warn(`[RBAC] Access denied for role '${role}' to screen '${screenId}'. Redirecting to Home.`);
     const fallbackScreen = isPatient ? 'screen-patient-home' : (isCaregiver ? 'screen-7' : 'screen-1');
-    return showScreen(fallbackScreen); // Redirect
+    if (fallbackScreen !== screenId) {
+        return showScreen(fallbackScreen); // Redirect
+    }
   }
   // --- END RBAC ROUTE GUARD ---
 
@@ -384,13 +439,13 @@ function showScreen(screenId) {
   appScreens.forEach(screen => {
     screen.classList.remove('active');
   });
-  
+
   // Show target screen
   const targetScreen = document.getElementById(screenId);
   if (targetScreen) {
     targetScreen.classList.add('active');
   }
-  
+
   // Update sidebar buttons active state
   sidebarButtons.forEach(btn => {
     const target = btn.getAttribute('data-target');
@@ -442,7 +497,7 @@ function setSidebarSwitcherRole(role, preventRedirect = false) {
       t.classList.remove('active');
     }
   });
-  
+
   sidebarScreenListBtns.forEach(btn => {
     const btnRole = btn.getAttribute('data-role');
     if (role === 'all') {
@@ -476,4 +531,3 @@ roleSwitcherTabs.forEach(tab => {
 
 // Initialize Calendar Accessibility (fixing unused function warning)
 setupCalendarClickListeners();
-

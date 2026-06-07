@@ -5,13 +5,13 @@
 function renderCaregiverDashboard() {
   const listContainer = document.getElementById('caregiver-patients-list');
   const countEl = document.getElementById('caregiver-patients-count');
-  
+
   if (!listContainer) return;
   listContainer.innerHTML = '';
-  
+
   const patientsEntries = Object.entries(appState.patients);
   if (countEl) countEl.textContent = `${patientsEntries.length} paciente${patientsEntries.length !== 1 ? 's' : ''}`;
-  
+
   if (patientsEntries.length === 0) {
     listContainer.innerHTML = `
       <div class="empty-state" style="text-align: center; padding: 32px 16px; color: var(--color-text-light);">
@@ -24,11 +24,11 @@ function renderCaregiverDashboard() {
     `;
     return;
   }
-  
+
   patientsEntries.forEach(([patientId, patient]) => {
     const isTaken = patient.statusClass === 'taken';
     const statusText = patient.status || (isTaken ? 'Em dia' : 'Pendente');
-    
+
     const card = document.createElement('div');
     card.className = 'patient-card';
     card.setAttribute('role', 'button');
@@ -42,13 +42,13 @@ function renderCaregiverDashboard() {
       </div>
       <span class="patient-status-badge ${patient.statusClass || 'pending'}" ${!isTaken ? 'style="background-color: var(--color-danger-bg); color: var(--color-danger-text);"' : ''}>${Components.escapeHTML(statusText)}</span>
     `;
-    
+
     card.addEventListener('click', () => {
       previousScreen = 'screen-7';
       renderPatientProfile(patientId);
       showScreen('screen-11');
     });
-    
+
     card.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
@@ -57,7 +57,7 @@ function renderCaregiverDashboard() {
         showScreen('screen-11');
       }
     });
-    
+
     listContainer.appendChild(card);
   });
 }
@@ -94,7 +94,7 @@ function renderPatientHomeChecklist() {
   const patient = patientKey ? appState.patients[patientKey] : null;
   const checklistContainer = document.getElementById('patient-home-checklist');
   const countText = document.getElementById('patient-home-summary-count');
-  
+
   if (!checklistContainer) return;
   checklistContainer.innerHTML = '';
 
@@ -111,19 +111,19 @@ function renderPatientHomeChecklist() {
     `;
     return;
   }
-  
+
   const total = patient.meds.length;
   const taken = patient.meds.filter(m => m.status === 'tomado').length;
-  
+
   if (countText) {
     countText.textContent = `${taken} de ${total}`;
   }
-  
+
   patient.meds.forEach((med, index) => {
     const row = document.createElement('div');
     const isTaken = med.status === 'tomado';
     row.className = `med-row ${isTaken ? 'taken' : ''}`;
-    
+
     let iconHtml = '';
     if (med.name.toLowerCase().includes('insulina')) {
       iconHtml = `
@@ -152,7 +152,7 @@ function renderPatientHomeChecklist() {
         </div>
       `;
     }
-    
+
     row.innerHTML = `
       ${iconHtml}
       <div class="med-info">
@@ -164,7 +164,7 @@ function renderPatientHomeChecklist() {
         <span class="med-status-indicator ${isTaken ? 'taken' : 'pending'}">${isTaken ? 'Tomado' : 'Pendente'}</span>
       </div>
     `;
-    
+
     row.setAttribute('tabindex', '0');
     row.setAttribute('role', 'checkbox');
     row.setAttribute('aria-checked', isTaken ? 'true' : 'false');
@@ -174,17 +174,18 @@ function renderPatientHomeChecklist() {
       const nowTaken = med.status !== 'tomado';
       med.status = nowTaken ? 'tomado' : 'pendente';
       row.setAttribute('aria-checked', nowTaken ? 'true' : 'false');
-      
-      // Sync with Screen 6 Agenda Data if the selected day is today (2026-05-21)
-      const agendaToday = agendaData['2026-05-21'];
+
+      // Sync with Screen 6 Agenda Data if the selected day is today
+      const todayStr = new Date().toISOString().split('T')[0];
+      const agendaToday = agendaData[todayStr];
       if (agendaToday) {
         const agendaMed = agendaToday.meds.find(m => m.name.toLowerCase() === med.name.toLowerCase());
         if (agendaMed) agendaMed.status = med.status;
       }
-      
+
       // Publish sync data to localStorage for real-time cross-tab update
       publishPatientSyncData();
-      
+
       // Update UI
       renderPatientHomeChecklist();
       renderAgenda(); // Sync screen 6
@@ -196,7 +197,7 @@ function renderPatientHomeChecklist() {
         row.click();
       }
     });
-    
+
     checklistContainer.appendChild(row);
   });
 }
@@ -205,21 +206,21 @@ function renderPatientMedsList() {
   const patientKey = Object.keys(appState.patients).find(k => k !== '__sync') || null;
   const patient = patientKey ? patientsProfileData[patientKey] : null;
   if (!patient) return;
-  
+
   const container = document.getElementById('patient-meds-list-container');
   if (!container) return;
-  
+
   container.innerHTML = '';
-  
+
   patient.meds.forEach(med => {
     const card = document.createElement('div');
     card.className = 'profile-med-item';
-    
+
     // Accessibility
     card.setAttribute('tabindex', '0');
     card.setAttribute('role', 'button');
     card.setAttribute('aria-label', `Medicamento ${med.name}, dose ${med.dose}, horário diário às ${med.time}`);
-    
+
     card.innerHTML = `
       <div class="profile-med-item-left">
         <div class="profile-med-item-icon">
@@ -247,4 +248,3 @@ if (btnCaregiverAddMed) {
     showScreen('screen-4');
   });
 }
-
