@@ -591,3 +591,26 @@ caregiverAlerts.forEach(alert => {
 setTimeout(attachMedClickListener, 500);
 
 // ==========================================================================
+// 9. GENERIC CUSTOM ALERT
+window.showCustomAlert = function(title, message) {
+  const modal = document.getElementById('generic-alert-modal');
+  const titleEl = document.getElementById('generic-alert-modal-title');
+  const descEl = document.getElementById('generic-alert-modal-desc');
+
+  if (!modal || !titleEl || !descEl) return;
+
+  titleEl.textContent = title;
+  descEl.textContent = message;
+
+  modal.classList.add('active');
+};
+
+const btnGenericAlertClose = document.getElementById('btn-generic-alert-close');
+if (btnGenericAlertClose) {
+  btnGenericAlertClose.addEventListener('click', () => {
+    const modal = document.getElementById('generic-alert-modal');
+    if (modal) {
+      modal.classList.remove('active');
+    }
+  });
+}
