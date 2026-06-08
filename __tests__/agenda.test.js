@@ -20,6 +20,30 @@ describe('Agenda Logic', () => {
       expect(result.total).toBe(4);
       expect(result.progress).toBe(50); // 2/4 = 50%
     });
+
+    it('should exclude "cancelado" and "ignorado" from the total', () => {
+      const mixedMeds = [
+        { name: 'Med A', status: 'tomado' },
+        { name: 'Med B', status: 'cancelado' },
+        { name: 'Med C', status: 'ignorado' },
+        { name: 'Med D', status: 'pendente' }
+      ];
+      const result = AgendaLogic.calculateDailyProgress(mixedMeds);
+      expect(result.taken).toBe(1);
+      expect(result.total).toBe(2); // Only A and D count
+      expect(result.progress).toBe(50); // 1/2 = 50%
+    });
+
+    it('should return 0 progress if all meds are excluded', () => {
+      const excludedMeds = [
+        { name: 'Med A', status: 'cancelado' },
+        { name: 'Med B', status: 'ignorado' }
+      ];
+      const result = AgendaLogic.calculateDailyProgress(excludedMeds);
+      expect(result.taken).toBe(0);
+      expect(result.total).toBe(0);
+      expect(result.progress).toBe(0);
+    });
   });
 
   describe('countDelayedMeds', () => {
