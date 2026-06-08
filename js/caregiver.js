@@ -103,6 +103,15 @@ function renderPatientHomeChecklist() {
     greetingEl.textContent = `Olá, ${firstName}!`;
   }
 
+  const dateEl = document.getElementById('patient-home-date');
+  if (dateEl) {
+    const now = new Date();
+    const day = now.getDate();
+    let month = now.toLocaleDateString('pt-BR', { month: 'long' });
+    month = month.toLowerCase(); // Just in case, to match "maio" style
+    dateEl.textContent = `${day} de ${month}`;
+  }
+
   // Use the first patient key found (created on login) or null for empty state
   const patientKey = Object.keys(appState.patients).find(k => k !== '__sync') || null;
   const patient = patientKey ? appState.patients[patientKey] : null;
