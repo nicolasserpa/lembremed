@@ -202,11 +202,12 @@ if (btnResetSimulator) {
 
   // Clear sync data from localStorage
   localStorage.removeItem('lembremed_patient_code');
+  localStorage.removeItem('lembremed_patient_code_timestamp');
   localStorage.removeItem('lembremed_sync_patients');
 
-  // Hide patient code card
-  const codeCard = document.getElementById('patient-sync-code-card');
-  if (codeCard) codeCard.style.display = 'none';
+  // Reset patient code display
+  const codeDisplay = document.getElementById('patient-lm-code');
+  if (codeDisplay) codeDisplay.textContent = '------';
 
   initAgendaData();
   selectedDate = new Date().toISOString().split('T')[0];
@@ -265,12 +266,28 @@ function updatePhoneClock() {
   // Periodically check for active reminder on minute change
   const activeScreen = document.querySelector('.app-screen.active');
   if (activeScreen && activeScreen.id === 'screen-patient-home') {
-    triggerSimulatedMedReminder();
+    if (typeof triggerSimulatedMedReminder === 'function') {
+      triggerSimulatedMedReminder();
+    }
+  }
+
+  // Handle auto-refresh for patient code in settings
+  if (activeScreen && activeScreen.id === 'screen-patient-settings' && appState.user.role === 'patient') {
+    const timestampStr = localStorage.getItem('lembremed_patient_code_timestamp');
+    if (timestampStr) {
+      const timestamp = parseInt(timestampStr, 10);
+      if (Date.now() - timestamp >= 60000) { // 60 seconds
+        if (typeof window.refreshPatientCode === 'function') {
+          window.refreshPatientCode();
+        }
+      }
+    }
   }
 }
 
 updatePhoneClock();
-setInterval(updatePhoneClock, 60000); // Update every minute
+// Using a faster interval here to guarantee checking TTL appropriately
+setInterval(updatePhoneClock, 5000); // Check more frequently to refresh code roughly on time
 
 // Initialize Upgraded Screen 6 Agenda logic
 initAgendaData();

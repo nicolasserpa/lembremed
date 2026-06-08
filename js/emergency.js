@@ -6,10 +6,11 @@ const SYNC_KEY = 'lembremed_sync_patients';
 
 // Publish current patient data to localStorage so other tabs can read it
 function publishPatientSyncData() {
-  const patientKey = activePatientId || Object.keys(appState.patients).find(k => k !== '__sync');
+  // Use persistent ID or fall back
+  const patientId = localStorage.getItem('lembremed_patient_id');
+  const patientKey = activePatientId || patientId || Object.keys(appState.patients).find(k => k !== '__sync');
   if (!patientKey || !appState.patients[patientKey]) return;
   const patient = appState.patients[patientKey];
-  if (!patient.lmCode) return;
 
   let syncData = {};
   try {
@@ -17,8 +18,12 @@ function publishPatientSyncData() {
   } catch (e) {
     console.warn('Recovered from malformed sync data in localStorage');
   }
-  syncData[patient.lmCode] = {
-    lmCode: patient.lmCode,
+
+  // We key the sync data by the persistent patient ID so that code changes don't break sync
+  const syncId = patient.id || patientKey;
+  syncData[syncId] = {
+    id: syncId,
+    lmCode: patient.lmCode, // Keep the latest code in the payload if needed
     name: patient.name,
     avatar: patient.avatar,
     age: patient.age,
@@ -42,8 +47,9 @@ window.addEventListener('storage', (e) => {
     const syncData = JSON.parse(e.newValue || '{}');
     let updated = false;
 
-    Object.entries(syncData).forEach(([lmCode, patientData]) => {
-      const matchKey = Object.keys(appState.patients).find(k => appState.patients[k].lmCode === lmCode);
+    Object.entries(syncData).forEach(([syncId, patientData]) => {
+      // Find patient by ID since code is ephemeral
+      const matchKey = Object.keys(appState.patients).find(k => appState.patients[k].id === syncId);
       if (!matchKey) return;
 
       appState.patients[matchKey] = { ...appState.patients[matchKey], ...patientData };
@@ -61,43 +67,56 @@ window.addEventListener('storage', (e) => {
   }
 
   if (appState.user.role === 'patient') {
-    const patientKey = Object.keys(appState.patients).find(k => k !== '__sync');
-    if (patientKey) {
+    const patientId = localStorage.getItem('lembremed_patient_id');
+    const patientKey = patientId || Object.keys(appState.patients).find(k => k !== '__sync');
+    if (patientKey && appState.patients[patientKey]) {
       const patientLmCode = appState.patients[patientKey].lmCode;
-      if (patientLmCode && e.key === 'lembremed_linked_' + patientLmCode) {
-        const caregiverContactCard = document.getElementById('caregiver-contact-card');
-        if (caregiverContactCard) {
-          caregiverContactCard.style.display = 'block';
-        }
+      if (patientLmCode && e.key === 'lembremed_linked_event' && e.newValue) {
+        let eventData = null;
+        try {
+          eventData = JSON.parse(e.newValue);
+        } catch(err) {}
 
-        const cgName = e.newValue || 'Contato de Emergência';
-        const cgNameEl = document.getElementById('caregiver-contact-name');
-        if (cgNameEl) {
-          cgNameEl.textContent = cgName;
-        }
+        if (eventData && eventData.code === patientLmCode) {
+          const caregiverContactCard = document.getElementById('caregiver-contact-card');
+          if (caregiverContactCard) {
+            caregiverContactCard.style.display = 'block';
+          }
 
-        appState.patients[patientKey].caregiverName = cgName;
+          const cgName = eventData.name || 'Contato de Emergência';
+          const cgNameEl = document.getElementById('caregiver-contact-name');
+          if (cgNameEl) {
+            cgNameEl.textContent = cgName;
+          }
 
-        // Add real-time link notification in the feed
-        if (!appState.patients[patientKey].alerts) {
-          appState.patients[patientKey].alerts = [];
-        }
+          appState.patients[patientKey].caregiverName = cgName;
 
-        const alertExists = appState.patients[patientKey].alerts.some(a => a.type === 'caregiver_linked');
-        if (!alertExists) {
-          appState.patients[patientKey].alerts.push({
-            id: 'cg_link_' + Date.now(),
-            type: 'caregiver_linked',
-            title: 'Novo Cuidador Vinculado',
-            text: `O cuidador <strong>${cgName}</strong> vinculou você ao perfil dele. Agora vocês compartilham o histórico em tempo real para um cuidado mais seguro!`,
-            time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-            isoTimestamp: new Date().toISOString(),
-            class: 'success'
-          });
+          // Add real-time link notification in the feed
+          if (!appState.patients[patientKey].alerts) {
+            appState.patients[patientKey].alerts = [];
+          }
 
-          const activeScreen = document.querySelector('.app-screen.active');
-          if (activeScreen && activeScreen.id === 'screen-patient-alerts') {
-            renderPatientAlerts();
+          const alertExists = appState.patients[patientKey].alerts.some(a => a.type === 'caregiver_linked');
+          if (!alertExists) {
+            appState.patients[patientKey].alerts.push({
+              id: 'cg_link_' + Date.now(),
+              type: 'caregiver_linked',
+              title: 'Novo Cuidador Vinculado',
+              text: `O cuidador <strong>${cgName}</strong> vinculou você ao perfil dele. Agora vocês compartilham o histórico em tempo real para um cuidado mais seguro!`,
+              time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+              isoTimestamp: new Date().toISOString(),
+              class: 'success'
+            });
+
+            const activeScreen = document.querySelector('.app-screen.active');
+            if (activeScreen && activeScreen.id === 'screen-patient-alerts') {
+              renderPatientAlerts();
+            }
+          }
+
+          // Invalidate the current code and generate a new one since the old one was used
+          if (typeof window.refreshPatientCode === 'function') {
+            window.refreshPatientCode();
           }
         }
       }
@@ -112,30 +131,20 @@ const linkErrorEl = document.getElementById('link-patient-error');
 const linkSuccessEl = document.getElementById('link-patient-success');
 
 if (btnLinkByCode && linkCodeInput) {
-  // Smart Mask for code input (format LM-XXXX)
+  // Smart Mask for code input (format XXXXXX)
   linkCodeInput.addEventListener('input', () => {
-    let val = linkCodeInput.value.toUpperCase();
-    let digits = val.replace(/[^A-Z0-9]/g, '');
-    if (digits.startsWith('LM')) {
-      digits = digits.substring(2);
-    }
-    digits = digits.replace(/[^0-9]/g, '').substring(0, 4);
-
-    if (digits.length > 0) {
-      linkCodeInput.value = 'LM-' + digits;
-    } else {
-      linkCodeInput.value = '';
-    }
+    let digits = linkCodeInput.value.replace(/[^0-9]/g, '').substring(0, 6);
+    linkCodeInput.value = digits;
   });
 
   btnLinkByCode.addEventListener('click', () => {
-    const code = linkCodeInput.value.trim().toUpperCase();
+    const code = linkCodeInput.value.trim();
     if (linkErrorEl) linkErrorEl.style.display = 'none';
     if (linkSuccessEl) linkSuccessEl.style.display = 'none';
 
-    if (!code.match(/^LM-\d{4}$/)) {
+    if (!code.match(/^\d{6}$/)) {
       if (linkErrorEl) {
-        linkErrorEl.textContent = 'Formato inválido. Use: LM-1234';
+        linkErrorEl.textContent = 'Formato inválido. Use os 6 números do código.';
         linkErrorEl.style.display = 'block';
       }
       return;
@@ -147,7 +156,17 @@ if (btnLinkByCode && linkCodeInput) {
     } catch (e) {
       console.warn('Recovered from malformed sync data in localStorage');
     }
-    const patientData = syncData[code];
+
+    // Find patient by code in syncData (keys are now IDs)
+    let patientData = null;
+    let patientId = null;
+    for (const [id, data] of Object.entries(syncData)) {
+      if (data.lmCode === code) {
+        patientData = data;
+        patientId = id;
+        break;
+      }
+    }
 
     if (!patientData) {
       if (linkErrorEl) {
@@ -157,7 +176,7 @@ if (btnLinkByCode && linkCodeInput) {
       return;
     }
 
-    const alreadyLinked = Object.values(appState.patients).some(p => p.lmCode === code);
+    const alreadyLinked = Object.values(appState.patients).some(p => p.id === patientId);
     if (alreadyLinked) {
       if (linkSuccessEl) {
         linkSuccessEl.textContent = `${patientData.name} já está vinculado!`;
@@ -166,15 +185,15 @@ if (btnLinkByCode && linkCodeInput) {
       return;
     }
 
-    const newKey = 'linked_' + code.replace('LM-', '');
+    // Key by the persistent ID on the caregiver side
+    const newKey = 'linked_' + patientId;
     appState.patients[newKey] = {
-      ...patientData,
-      lmCode: code
+      ...patientData
     };
     patientsProfileData = appState.patients;
 
     // Notifica o paciente salvando o nome real do cuidador no localStorage em vez de apenas um timestamp
-    localStorage.setItem('lembremed_linked_' + code, appState.user.name || 'Cuidador');
+    localStorage.setItem('lembremed_linked_event', JSON.stringify({ code: code, name: appState.user.name || 'Cuidador', timestamp: Date.now() }));
 
     if (linkCodeInput) linkCodeInput.value = '';
     if (linkSuccessEl) {

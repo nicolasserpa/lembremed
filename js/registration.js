@@ -88,6 +88,37 @@ if (btnFlow1) {
   });
 }
 
+// Refresh patient code implementation
+function refreshPatientCode() {
+  const newCode = Math.floor(100000 + Math.random() * 900000).toString();
+  localStorage.setItem('lembremed_patient_code', newCode);
+  localStorage.setItem('lembremed_patient_code_timestamp', Date.now().toString());
+
+  appState.user.lmCode = newCode;
+
+  // Find current patient key (now using the persistent ID, we don't rename the key)
+  const patientId = localStorage.getItem('lembremed_patient_id');
+  if (patientId && appState.patients[patientId]) {
+    appState.patients[patientId].lmCode = newCode;
+  } else {
+    // Fallback if ID wasn't set or found properly
+    const oldKey = Object.keys(appState.patients).find(k => k !== '__sync');
+    if (oldKey && appState.patients[oldKey]) {
+      appState.patients[oldKey].lmCode = newCode;
+    }
+  }
+
+  // Update UI
+  const codeDisplay = document.getElementById('patient-lm-code');
+  if (codeDisplay) {
+    codeDisplay.textContent = newCode;
+  }
+
+  publishPatientSyncData();
+}
+
+window.refreshPatientCode = refreshPatientCode;
+
 // Onboarding input field Enter key listeners to trigger continuation
 const regInputs = ['reg-name', 'reg-age'];
 regInputs.forEach(id => {
@@ -119,20 +150,26 @@ if (btnFlow2) {
       // Initialize patient profile dynamically on login
       if (role === 'patient') {
         const userName = appState.user.name || 'Paciente';
-        // Generate or retrieve a persistent unique LM code
-        let lmCode = localStorage.getItem('lembremed_patient_code');
+        // Generate or retrieve a persistent unique 6-digit code
+        let patientId = localStorage.getItem('lembremed_patient_id');
+      if (!patientId) {
+        patientId = 'patient_' + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem('lembremed_patient_id', patientId);
+      }
+      let lmCode = localStorage.getItem('lembremed_patient_code');
         if (!lmCode) {
-          const digits = Math.floor(1000 + Math.random() * 9000);
-          lmCode = `LM-${digits}`;
+          lmCode = Math.floor(100000 + Math.random() * 900000).toString();
           localStorage.setItem('lembremed_patient_code', lmCode);
+          localStorage.setItem('lembremed_patient_code_timestamp', Date.now().toString());
         }
         appState.user.lmCode = lmCode;
 
-        const patientKey = 'patient_' + lmCode.replace('LM-', '');
+        const patientKey = patientId;
         appState.patients[patientKey] = {
           avatar: userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'PA',
           name: userName,
           age: appState.user.age || 'Idade não informada',
+          id: patientId,
           lmCode: lmCode,
           status: 'Em Dia',
           statusClass: 'taken',
@@ -170,11 +207,9 @@ if (btnFlow2) {
           });
         }
 
-        // Show patient code card in settings
-        const codeCard = document.getElementById('patient-sync-code-card');
+        // Update patient code card in settings
         const codeDisplay = document.getElementById('patient-lm-code');
-        if (codeCard && codeDisplay) {
-          codeCard.style.display = 'block';
+        if (codeDisplay) {
           codeDisplay.textContent = lmCode;
         }
 
