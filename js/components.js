@@ -73,3 +73,8 @@ const Components = {
     }
   }
 };
+
+// For Node.js/Jest environment
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = Components;
+}

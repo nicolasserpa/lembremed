@@ -22,6 +22,11 @@ describe('Validation Logic', () => {
       expect(Validation.isValidPhone(null)).toBe(false);
     });
 
+    it('should return false for phone numbers with more than 11 digits', () => {
+      expect(Validation.isValidPhone('119876543210')).toBe(false); // 12 digits
+      expect(Validation.isValidPhone('(11) 98765-43210')).toBe(false); // 12 digits
+    });
+
     it('should return true for valid 10 or 11 digit phones', () => {
       expect(Validation.isValidPhone('(11) 98765-4321')).toBe(true); // 11 digits
       expect(Validation.isValidPhone('(11) 8765-4321')).toBe(true);  // 10 digits
