@@ -212,6 +212,6 @@ if (btnLinkByCode && linkCodeInput) {
 window.publishPatientSyncData = publishPatientSyncData;
 
 // Default initialization in Pitch Mode (Moved here to avoid Temporal Dead Zone errors)
-clearPitchData();
+
 
 // ==========================================================================

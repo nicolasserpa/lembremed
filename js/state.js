@@ -83,8 +83,8 @@ const appScreens = document.querySelectorAll('.app-screen');
 // ==========================================================================
 // DEMO MODE ONLY: Clear all storage on refresh so it's plug-and-play every time
 // ==========================================================================
-localStorage.clear();
-sessionStorage.clear();
+
+
 
 const appState = {
   mode: 'pitch',
