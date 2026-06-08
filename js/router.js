@@ -246,7 +246,11 @@ function toggleMedStatus(date, index) {
   const isFutureTimeToday = date === todayStr && !window.AgendaLogic.isTimePassed(med.time);
 
   if (med.status !== 'tomado' && (isFutureDate || isFutureTimeToday)) {
-    alert(`Você ainda não pode tomar este medicamento. O horário agendado é ${med.time}${isFutureDate ? ' em um dia futuro' : ''}.`);
+    if (typeof window.showCustomAlert === 'function') {
+      window.showCustomAlert('Atenção', `Você ainda não pode tomar este medicamento. O horário agendado é às ${med.time}${isFutureDate ? ' em um dia futuro' : ''}.`);
+    } else {
+      alert(`Você ainda não pode tomar este medicamento. O horário agendado é ${med.time}${isFutureDate ? ' em um dia futuro' : ''}.`);
+    }
     return;
   }
 

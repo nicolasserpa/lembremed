@@ -197,7 +197,11 @@ function renderPatientHomeChecklist() {
 
       // Restriction: Prevent marking future medications as taken
       if (!isTakenNow && isFutureTimeToday) {
-        alert(`Você ainda não pode tomar este medicamento. O horário agendado é ${med.time}.`);
+        if (typeof window.showCustomAlert === 'function') {
+          window.showCustomAlert('Atenção', `Você ainda não pode tomar este medicamento. O horário agendado é às ${med.time}.`);
+        } else {
+          alert(`Você ainda não pode tomar este medicamento. O horário agendado é ${med.time}.`);
+        }
         return;
       }
 
