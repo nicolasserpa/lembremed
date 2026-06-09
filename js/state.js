@@ -98,37 +98,6 @@ const appState = {
 // Alias dinâmico para retrocompatibilidade
 let patientsProfileData = appState.patients;
 
-// [AVISO DE ALTERAÇÃO - HIGIENE DE CÓDIGO]
-// - O que existia antes: Limpeza dos campos de cadastro incluindo 'reg-phone'.
-// - O que mudou: Limpeza do campo 'reg-phone' removida por completo, e adicionada a limpeza do novo campo de idade 'reg-age'.
-function clearPitchData() {
-  appState.user = { name: '', role: '', age: '' };
-  appState.patients = {};
-  patientsProfileData = appState.patients;
-  
-  const nameInput = document.getElementById('reg-name');
-  const genderSelect = document.getElementById('reg-gender');
-  const ageInput = document.getElementById('reg-age');
-  if(nameInput) nameInput.value = '';
-  if(genderSelect) genderSelect.value = '';
-  if(ageInput) ageInput.value = '';
-  
-  const searchInputMock = document.getElementById('search-med-input');
-  if (searchInputMock) searchInputMock.value = '';
-  const dropdownResultsMock = document.querySelector('.dropdown-results');
-  if (dropdownResultsMock) dropdownResultsMock.style.display = 'none';
-  
-  activePatientId = null;
-  
-  if (typeof initAgendaData === 'function') {
-    initAgendaData();
-  }
-  if (typeof renderAgenda === 'function') {
-    renderAgenda();
-  }
-}
-
-// (Pitch Mode will be initialized at the end of the script to avoid Temporal Dead Zone issues)
 
 let activePatientId = null;
 let previousScreen = 'screen-7';

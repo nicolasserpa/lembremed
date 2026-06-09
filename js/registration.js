@@ -2,34 +2,6 @@
 // ONBOARDING FLOW ROUTING UPDATES
 // ==========================================================================
 
-// Phone field masking logic (Cadastro Inicial & Cadastro de Paciente)
-const maskPhoneInput = (e) => {
-  let x = e.target.value.replace(/\D/g, '').substring(0, 11);
-  let formatted = '';
-  if (x.length === 0) {
-    formatted = '';
-  } else if (x.length <= 2) {
-    formatted = `(${x}`;
-  } else if (x.length <= 6) {
-    formatted = `(${x.substring(0, 2)}) ${x.substring(2)}`;
-  } else if (x.length <= 10) {
-    formatted = `(${x.substring(0, 2)}) ${x.substring(2, 6)}-${x.substring(6)}`;
-  } else {
-    formatted = `(${x.substring(0, 2)}) ${x.substring(2, 7)}-${x.substring(7)}`;
-  }
-  e.target.value = formatted;
-};
-
-const regPhone = document.getElementById('reg-phone');
-if (regPhone) {
-  regPhone.addEventListener('input', maskPhoneInput);
-}
-
-const addPatientPhone = document.getElementById('add-patient-phone');
-if (addPatientPhone) {
-  addPatientPhone.addEventListener('input', maskPhoneInput);
-}
-
 // Screen 1 -> Screen 2 (Registration -> Role Selection)
 // [CHANGE NOTICE - UX & ACCURATE REGISTRATION]
 // - Previous state: Validation only for 'reg-name' field and unnecessary phone number cleanup/masking 'reg-phone'.
