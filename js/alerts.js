@@ -66,7 +66,6 @@ if (btnSavePatient) {
     // Limpa os campos
     nameInput.value = '';
     document.getElementById('add-patient-age').value = '';
-    document.getElementById('add-patient-phone').value = '';
 
     renderCaregiverDashboard();
     showScreen('screen-7');
