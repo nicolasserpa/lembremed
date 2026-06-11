@@ -4,6 +4,17 @@ All notable changes and design iterations for the LembreMed interactive prototyp
 
 ---
 
+## [Unreleased]
+
+### Changed
+- **Project Structure Flattening**: Removed the redundant `src/` directory. Core assets (`assets/`, `css/`, `js/`) are now properly hosted at the project root level.
+- **Removed Phone Data Logic**: Eliminated phone number input fields, masking, and validation logic from registration and patient management flows (simulated UI calling functionality remains unchanged).
+
+### Removed
+- **Empty Files Cleanup**: Deleted empty unused files (`js/timePicker.js`, `js/medSearch.js`).
+
+---
+
 ## [1.4.0] - 2026-05-21
 
 ### Added
