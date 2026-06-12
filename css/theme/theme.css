@@ -2,9 +2,9 @@
 
 :root {
   /* Colors */
-  --color-primary: #00A8FF;
-  --color-primary-dark: #008AD3;
-  --color-primary-light: #EBF8FF;
+  --color-primary: #14B8A6;
+  --color-primary-dark: #0D9488;
+  --color-primary-light: #CCFBF1;
   --color-bg-main: #FFFFFF;
   --color-bg-secondary: #F8FAFC;
   --color-text-dark: #1E293B;
@@ -46,9 +46,9 @@
 }
 
 .phone-device.high-contrast {
-  --color-primary: #0056B3;
-  --color-primary-dark: #003366;
-  --color-primary-light: #E6F0FA;
+  --color-primary: #0F766E;
+  --color-primary-dark: #115E59;
+  --color-primary-light: #99F6E4;
   --color-bg-main: #FFFFFF;
   --color-bg-secondary: #F1F5F9;
   --color-text-dark: #000000;
