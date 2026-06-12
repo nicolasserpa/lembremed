@@ -1,9 +1,9 @@
+// generate_screenshots.js
 const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs');
 
 (async () => {
-  // Cria a pasta para os screenshots se não existir
   const outputDir = path.resolve(__dirname, 'assets', 'screenshots');
   if (!fs.existsSync(outputDir)){
     fs.mkdirSync(outputDir, { recursive: true });
@@ -12,14 +12,31 @@ const fs = require('fs');
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
 
-  // Define viewport para acomodar bem o mockup de telefone
+  // Repassa os logs do console do navegador para o seu terminal para depuração rápida
+  page.on('console', msg => {
+    console.log(`[Navegador] ${msg.text()}`);
+  });
+
   await page.setViewport({ width: 1280, height: 1000, deviceScaleFactor: 2 });
 
-  // Carrega o index.html local
   const indexPath = `file://${path.resolve(__dirname, 'index.html')}`;
-  await page.goto(indexPath);
+  console.log('Carregando a aplicação estática...');
+  await page.goto(indexPath, { waitUntil: 'networkidle0' });
 
-  // Mapeamento exato das telas e permissões extraído do seu router.js
+  // Aguarda até que o appState (léxico ou global) esteja disponível na página
+  console.log('Aguardando inicialização do appState...');
+  try {
+    await page.waitForFunction(() => {
+      return (typeof appState !== 'undefined' && appState !== null) ||
+             (typeof window.appState !== 'undefined' && window.appState !== null);
+    }, { timeout: 5000 });
+    console.log('Mecanismo de estado detectado.');
+  } catch (err) {
+    console.error('[ERRO] appState não encontrado. Verifique se o js/state.js está carregando corretamente.');
+    await browser.close();
+    process.exit(1);
+  }
+
   const screenSequence = [
     // Public Screens
     { id: 'screen-1', role: null },
@@ -41,63 +58,32 @@ const fs = require('fs');
     { id: 'screen-11', role: 'caregiver' },
 
     // Shared Screens
-    { id: 'screen-4', role: 'patient' }, // using patient role to bypass rbac
+    { id: 'screen-4', role: 'patient' },
     { id: 'screen-5', role: 'patient' },
     { id: 'screen-6', role: 'patient' }
   ];
 
-  console.log('Iniciando captura automatizada das telas...');
+  console.log('Iniciando captura de telas...');
 
   for (const target of screenSequence) {
-    // Injeta o estado de role correto no contexto da página para passar pelo RBAC Guard
-    // Além de resetar o modo para que dados nativos de mock sejam populados pela app
+    // Altera o estado léxico ou de window preservando as demais configurações do mock
     await page.evaluate((role) => {
-      if (!window.appState) {
-        window.appState = { patients: {} };
-      }
-      if (!window.appState.user) {
-        window.appState.user = {};
-      }
-
-      // Define a role para passar no Route Guard
-      window.appState.user.role = role;
-
-      // Setting app mode to default (not 'pitch') so `initAgendaData()` maps baseline mock data
-      window.appState.mode = 'default';
-
-      // Mock some patients base data so other screens that check 'patients' object will render with content
-      if (Object.keys(window.appState.patients).length === 0) {
-        window.appState.patients = {
-          'mock-patient-id': {
-             name: 'Dona Maria',
-             history: [],
-             alerts: [
-               { id: 1, type: 'atrasado', message: 'Atrasou a Dipirona', time: '12:00' }
-             ]
-          }
-        };
+      let state = null;
+      if (typeof appState !== 'undefined') {
+        state = appState;
+      } else if (typeof window.appState !== 'undefined') {
+        state = window.appState;
       }
 
-      // In case we need patientsProfileData to have basic info
-      if (!window.patientsProfileData) {
-        window.patientsProfileData = {};
-      }
-      if (!window.patientsProfileData['mock-patient-id']) {
-         window.patientsProfileData['mock-patient-id'] = {
-           name: 'Dona Maria',
-           meds: [
-             { name: 'Losartana', dose: '50mg', time: '08:00', status: 'pendente' }
-           ]
-         };
-      }
-
-      // Force reinitalization of agenda data if initAgendaData exists
-      if (typeof window.initAgendaData === 'function') {
-         window.initAgendaData();
+      if (state) {
+        if (!state.user) state.user = {};
+        state.user.role = role;
+      } else {
+        console.error('[Puppeteer] Erro crítico: impossível acessar o objeto de estado.');
       }
     }, target.role);
 
-    // Dispara a navegação e força a execução do ciclo de vida da tela
+    // Executa a navegação pela API do roteador
     const navigationSuccess = await page.evaluate((id) => {
       if (typeof window.showScreen === 'function') {
         window.showScreen(id);
@@ -107,26 +93,26 @@ const fs = require('fs');
     }, target.id);
 
     if (!navigationSuccess) {
-      console.error(`[ERRO] Função showScreen não disponível para a tela: ${target.id}`);
+      console.error(`[ERRO] Falha ao acionar showScreen para a tela: ${target.id}`);
       continue;
     }
 
-    // Espera sutil para garantir que transições de opacidade/CSS terminem e dados sejam renderizados
-    await new Promise(r => setTimeout(r, 600));
+    // Espera as transições visuais e renderização de dados estabilizarem
+    await new Promise(r => setTimeout(r, 450));
 
-    // Captura apenas o mock de telefone (#phone-container)
+    // Captura exclusivamente o mockup do dispositivo
     const phoneContainer = await page.$('#phone-container');
     if (phoneContainer) {
       const fileName = `screen_${target.id}.png`;
       const outputPath = path.join(outputDir, fileName);
 
       await phoneContainer.screenshot({ path: outputPath });
-      console.log(`[OK] Capturada: ${target.id} -> ${fileName}`);
+      console.log(`[OK] Capturada: ${target.id}`);
     } else {
-      console.warn(`[AVISO] Seletor #phone-container não encontrado ao renderizar: ${target.id}`);
+      console.warn(`[AVISO] #phone-container não encontrado na tela: ${target.id}`);
     }
   }
 
   await browser.close();
-  console.log(`Processo finalizado. Screenshots salvos em: ${outputDir}`);
+  console.log('Todas as telas foram processadas.');
 })();
