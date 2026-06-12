@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Preview Social - LembreMed</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Teal (Verde-Água) limpo e moderno */
+      --color-primary: #14B8A6;
+      --color-bg-main: #FFFFFF;
+      --color-text-dark: #1E293B;
+      --color-text-muted: #475569;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #e2e8f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* O container de 1200x630 */
+    .social-card {
+      width: 1200px;
+      height: 630px;
+      background-color: var(--color-bg-main);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Adicionando um fundo sutil / gradiente */
+    .social-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, var(--color-primary) 0%, transparent 40%);
+      opacity: 0.05;
+      z-index: 0;
+    }
+
+    .content {
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .icon-container {
+      width: 160px;
+      height: 160px;
+      color: var(--color-primary);
+      background: rgba(20, 184, 166, 0.1);
+      border-radius: 40px;
+      padding: 32px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .icon-container svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .brand-name {
+      font-size: 84px;
+      font-weight: 800;
+      color: var(--color-text-dark);
+      margin: 0;
+      line-height: 1;
+    }
+
+    .slogan {
+      font-size: 42px;
+      font-weight: 400;
+      color: var(--color-text-muted);
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="social-card">
+    <div class="content">
+      <div class="icon-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 2 12 A 10 10 0 0 1 12 2" stroke-dasharray="2 4" stroke-width="2"/>
+          <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" fill="none" stroke-width="2.5"/>
+          <path d="m8.5 15.5 7-7" stroke-width="2.5"/>
+        </svg>
+      </div>
+      <h1 class="brand-name">LembreMed</h1>
+      <h2 class="slogan">Seu cuidado diário</h2>
+    </div>
+  </div>
+
+</body>
+</html>

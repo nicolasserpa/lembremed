@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Eco/Alarme (stroke mais fino para hierarquia visual) -->
+  <path d="M 2 12 A 10 10 0 0 1 12 2" stroke-dasharray="2 4" stroke-width="2"/>
+  <!-- Cápsula padrão (Lucide) -->
+  <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" fill="none" stroke-width="2.5"/>
+  <path d="m8.5 15.5 7-7" stroke-width="2.5"/>
+</svg>
